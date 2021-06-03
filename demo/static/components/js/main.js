@@ -56,10 +56,11 @@ function ReferenceNameSpace() {
 
             var c = $('.palette-item.selected').data('class');
             if (c != -1) {
+                var brush_size = parseInt($("#ex0").val())
                 var col = s.color(colors[palette.indexOf(c)]);
                 s.mask[palette_selected_index].noStroke();
                 s.mask[palette_selected_index].fill(col);
-                s.mask[palette_selected_index].ellipse(s.mouseX, s.mouseY, 20, 20);
+                s.mask[palette_selected_index].ellipse(s.mouseX, s.mouseY, brush_size, brush_size);
 
             } else { // eraser
                 if (sync_flag == true) {
@@ -347,7 +348,7 @@ $(function () {
         $(".palette-item.selected").removeClass('selected');
         $(this).addClass('selected');
     });
-
+    $('#ex0').slider();
     $('#ex1').slider({
         formatter: function (value) {
             return 'interpolation: ' + (value / (16 - 1)).toFixed(2);
@@ -357,7 +358,7 @@ $(function () {
     $("#ex1").change(function () {
         p5_output.changeCurrentImage(parseInt($("#ex1").val()));
     });
-
+ 
     p5_input_reference = new p5(ReferenceNameSpace(), "p5-reference");
     p5_input_original = new p5(OriginalNameSpace(), "p5-original");
     p5_output = new p5(generateOutputNameSpace(), "p5-right");
