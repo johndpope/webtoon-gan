@@ -555,7 +555,7 @@ if __name__ == "__main__":
     parser.add_argument("--lambda_indomainGAN_E_loss", type=float, default=1)
 
     input_args = parser.parse_args()
-
+    
     ngpus = torch.cuda.device_count()
     print("{} GPUS!".format(ngpus))
 

@@ -20,7 +20,11 @@ from training.model import Generator, Encoder
 from training.dataset import MultiResolutionDataset
 from tqdm import tqdm
 from sklearn import svm
+import glob
+import pandas as pd
+
 import cv2
+
 
 seed = 0
 random.seed(seed)
@@ -124,8 +128,8 @@ if __name__ == "__main__":
     parser.add_argument("--batch", type=int, default=16)
     parser.add_argument("--num_workers", type=int, default=2)
     parser.add_argument(
-        "--part", type=str, default="Heavy_Makeup"
-    )  # No_Beard Smiling ..
+        "--part", type=str, default="left_right"
+    )  
     parser.add_argument("--svm_train_iter", type=int, default=None)
 
     args = parser.parse_args()
@@ -153,18 +157,18 @@ if __name__ == "__main__":
     model.g_ema.load_state_dict(ckpt["g_ema"])
     model.e_ema.load_state_dict(ckpt["e_ema"])
     model = model.to(device)
-
     transform = transforms.Compose(
         [
             transforms.ToTensor(),
             transforms.Normalize((0.5, 0.5, 0.5), (0.5, 0.5, 0.5), inplace=True),
         ]
     )
-
     train_dataset = MultiResolutionDataset(args.train_lmdb, transform, train_args.size)
     val_dataset = MultiResolutionDataset(args.val_lmdb, transform, train_args.size)
     test_dataset = MultiResolutionDataset(args.test_lmdb, transform, train_args.size)
-    dataset = data.ConcatDataset([train_dataset, val_dataset, test_dataset])
+    dataset = data.ConcatDataset([train_dataset, test_dataset, val_dataset])
+    
+    
 
     with torch.no_grad():
         # if inverted latent does not exist, save inverted latent as npy format
@@ -205,61 +209,15 @@ if __name__ == "__main__":
             part2_indexes = boundary_infos["part2_indexes"]
 
         else:
-            ############################################
-            # get positive and negative indices by ranking using pretrained network (stylegan1)
-            # refer to https://github.com/NVlabs/stylegan/tree/master/metrics/linear_separability.py
-
-            part_pos_neg_indices = [
-                "Male",
-                "Smiling",
-                "Attractive",
-                "Wavy_Hair",
-                "Young",
-                "5_o_Clock_Shadow",
-                "Arched_Eyebrows",
-                "Bags_Under_Eyes",
-                "Bald",
-                "Bangs",
-                "Big_Lips",
-                "Big_Nose",
-                "Black_Hair",
-                "Blond_Hair",
-                "Blurry",
-                "Brown_Hair",
-                "Bushy_Eyebrows",
-                "Chubby",
-                "Double_Chin",
-                "Eyeglasses",
-                "Goatee",
-                "Gray_Hair",
-                "Heavy_Makeup",
-                "High_Cheekbones",
-                "Mouth_Slightly_Open",
-                "Mustache",
-                "Narrow_Eyes",
-                "No_Beard",
-                "Oval_Face",
-                "Pale_Skin",
-                "Pointy_Nose",
-                "Receding_Hairline",
-                "Rosy_Cheeks",
-                "Sideburns",
-                "Straight_Hair",
-                "Wearing_Earrings",
-                "Wearing_Hat",
-                "Wearing_Lipstick",
-                "Wearing_Necklace",
-                "Wearing_Necktie",
-            ]
-
-            pruned_index = part_pos_neg_indices.index(part)
             part1_indexes = np.load(
-                f"semantic_manipulation/{pruned_index}_pos_indices.npy"
-            )
+                f"semantic_manipulation/lr_pos_indices.npy"
+            ).astype(int)
             part2_indexes = np.load(
-                f"semantic_manipulation/{pruned_index}_neg_indices.npy"
-            )
-
+                f"semantic_manipulation/lr_neg_indices.npy"
+            ).astype(int)
+                        
+            print(part1_indexes)
+            print(part2_indexes)
             # get boundary using two parts.
             testset_ratio = 0.1
             np.random.shuffle(part1_indexes)
@@ -342,128 +300,129 @@ if __name__ == "__main__":
                 args.boundary,
             )
 
-        with open(args.attr_celeba_hq, "r") as fp:
-            total_number = int(fp.readline())
-            print(f"{total_number} images, {len(latent_codes)} latent_codes")
-            assert total_number == len(latent_codes)
-            attrs = fp.readline().strip().split(" ")
+        # with open(args.attr_celeba_hq, "r") as fp:
+        #     total_number = int(fp.readline())
+        #     print(f"{total_number} images, {len(latent_codes)} latent_codes")
+        #     # assert total_number == len(latent_codes)
+        #     attrs = fp.readline().strip().split(" ")
 
-            # print(attrs) # ['5_o_Clock_Shadow', 'Arched_Eyebrows', 'Attractive', 'Bags_Under_Eyes', 'Bald', 'Bangs', 'Big_Lips', 'Big_Nose', 'Black_Hair', 'Blond_Hair', 'Blurry', 'Brown_Hair', 'Bushy_Eyebrows', 'Chubby', 'Double_Chin', 'Eyeglasses', 'Goatee', 'Gray_Hair', 'Heavy_Makeup', 'High_Cheekbones', 'Male', 'Mouth_Slightly_Open', 'Mustache', 'Narrow_Eyes', 'No_Beard', 'Oval_Face', 'Pale_Skin', 'Pointy_Nose', 'Receding_Hairline', 'Rosy_Cheeks', 'Sideburns', 'Smiling', 'Straight_Hair', 'Wavy_Hair', 'Wearing_Earrings', 'Wearing_Hat', 'Wearing_Lipstick', 'Wearing_Necklace', 'Wearing_Necktie', 'Young']
-            # Please note that the order is different from part_pos_neg_indices
+        #     # print(attrs) # ['5_o_Clock_Shadow', 'Arched_Eyebrows', 'Attractive', 'Bags_Under_Eyes', 'Bald', 'Bangs', 'Big_Lips', 'Big_Nose', 'Black_Hair', 'Blond_Hair', 'Blurry', 'Brown_Hair', 'Bushy_Eyebrows', 'Chubby', 'Double_Chin', 'Eyeglasses', 'Goatee', 'Gray_Hair', 'Heavy_Makeup', 'High_Cheekbones', 'Male', 'Mouth_Slightly_Open', 'Mustache', 'Narrow_Eyes', 'No_Beard', 'Oval_Face', 'Pale_Skin', 'Pointy_Nose', 'Receding_Hairline', 'Rosy_Cheeks', 'Sideburns', 'Smiling', 'Straight_Hair', 'Wavy_Hair', 'Wearing_Earrings', 'Wearing_Hat', 'Wearing_Lipstick', 'Wearing_Necklace', 'Wearing_Necktie', 'Young']
+        #     # Please note that the order is different from part_pos_neg_indices
 
-            for i, attr in enumerate(attrs):
-                if attr == args.part:
-                    part_index = i
-                    print(part, part_index)
-                    break
+        #     for i, attr in enumerate(attrs):
+        #         if attr == args.part:
+        #             part_index = i
+        #             print(part, part_index)
+        #             break
 
-            read_line = fp.readline()
-            GT_part1_indexes = []  # part1: Heavy_Makeup
-            GT_part2_indexes = []  # part2: others
+        #     part_index = 0
+        #     read_line = fp.readline()
+        #     GT_part1_indexes = []  # part1: Heavy_Makeup
+        #     GT_part2_indexes = []  # part2: others
 
-            img_i = 0
-            pivot = 0
-            f_names = sorted(list(os.listdir("data/celeba_hq/raw_images/test/images/")))
+        #     img_i = 0
+        #     pivot = 0
+        #     f_names = sorted(list(os.listdir("data/sketch256/raw_images/test/images/")))
 
-            while read_line:
-                parse_info = read_line.replace("  ", " ").strip().split(" ")
-                attr_info = parse_info[1:]
-                f_name = parse_info[0]  # first element is filename
+        #     while read_line:
+        #         parse_info = read_line.replace("  ", " ").strip().split(" ")
+        #         attr_info = parse_info[1:]
+        #         f_name = parse_info[0]  # first element is filename
 
-                if f_name == f_names[pivot]:
-                    if attr_info[part_index] == "1":
-                        GT_part1_indexes.append(pivot)
-                    else:
-                        GT_part2_indexes.append(pivot)
+        #         if f_name == f_names[pivot]:
+        #             if attr_info[part_index] == "1":
+        #                 GT_part1_indexes.append(pivot)
+        #             else:
+        #                 GT_part2_indexes.append(pivot)
 
-                    pivot += 1
-                    if pivot == 500:
-                        break
+        #             pivot += 1
+        #             if pivot == 500:
+        #                 break
 
-                img_i += 1
-                read_line = fp.readline()
+        #         img_i += 1
+        #         read_line = fp.readline()
 
-        test_part1_indexes = GT_part1_indexes
-        test_part2_indexes = GT_part2_indexes
+        # test_part1_indexes = GT_part1_indexes
+        # test_part2_indexes = GT_part2_indexes
 
-        part1_loader = data.DataLoader(
-            test_dataset,
-            batch_size=args.batch,
-            sampler=Sampler_with_index(test_part1_indexes),
-        )
-        part1_loader = sample_data(part1_loader)
+        # part1_loader = data.DataLoader(
+        #     test_dataset,
+        #     batch_size=args.batch,
+        #     sampler=Sampler_with_index(test_part1_indexes),
+        # )
+        # part1_loader = sample_data(part1_loader)
 
-        part2_loader = data.DataLoader(
-            test_dataset,
-            batch_size=args.batch,
-            sampler=Sampler_with_index(test_part2_indexes),
-        )
+        # part2_loader = data.DataLoader(
+        #     test_dataset,
+        #     batch_size=args.batch,
+        #     sampler=Sampler_with_index(test_part2_indexes),
+        # )
 
-        part2_loader = sample_data(part2_loader)
-        part2_img = next(part2_loader).to(device)
+        # part2_loader = sample_data(part2_loader)
+        # part2_img = next(part2_loader).to(device)
 
-        # heavy makup
-        ref_p_x, ref_p_y, width, height = 2, 5, 4, 2
+        # # heavy makup
+        # ref_p_x, ref_p_y, width, height = 0, 0, 8, 8
 
-        mask = (ref_p_x, ref_p_y, width, height)
-        mask = torch.zeros(part2_img.shape[0], 64, 8, 8)
-        mask[:, :, ref_p_y : ref_p_y + height, ref_p_x : ref_p_x + width] = 1
+        # mask = (ref_p_x, ref_p_y, width, height)
+        # mask = torch.zeros(part2_img.shape[0], 64, 8, 8)
+        # mask[:, :, ref_p_y : ref_p_y + height, ref_p_x : ref_p_x + width] = 1
 
-        part2_to_part1 = model(
-            part2_img, "transform_to_other_part", -boundary, mask=mask
-        )
+        # part2_to_part1 = model(
+        #     part2_img, "transform_to_other_part", -boundary, mask=mask
+        # )
 
-        utils.save_image(
-            torch.cat([part2_img, part2_to_part1]),
-            f"{args.save_dir}/{part}/{model_name}_others_to_{part}.png",
-            nrow=args.batch,
-            normalize=True,
-            range=(-1, 1),
-        )
+        # utils.save_image(
+        #     torch.cat([part2_img, part2_to_part1]),
+        #     f"{args.save_dir}/{part}/{model_name}_others_to_{part}.png",
+        #     nrow=args.batch,
+        #     normalize=True,
+        #     range=(-1, 1),
+        # )
 
-        # heavy makup
-        s1 = np.array(list(range(13, 16 * 11, 16)))[[0, 3, 6, -1]]
-        s2 = np.array(list(range(15, 16 * 11, 16)))[[0, 3, 6, -1]]
-        ratio = train_args.size // train_args.latent_spatial_size
+        # # heavy makup
+        # s1 = np.array(list(range(13, 16 * 11, 16)))[[0, 3, 6, -1]]
+        # s2 = np.array(list(range(15, 16 * 11, 16)))[[0, 3, 6, -1]]
+        # ratio = train_args.size // train_args.latent_spatial_size
 
-        for img, s_n in zip(
-            torch.cat([part2_img, part2_to_part1])[
-                np.concatenate((s1, s2), axis=0).tolist()
-            ],
-            [
-                "img1_ori",
-                "img1_global",
-                "img1_local",
-                "img1_recon",
-                "img2_ori",
-                "img2_global",
-                "img2_local",
-                "img2_recon",
-            ],
-        ):
+        # for img, s_n in zip(
+        #     torch.cat([part2_img, part2_to_part1])[
+        #         np.concatenate((s1, s2), axis=0).tolist()
+        #     ],
+        #     [
+        #         "img1_ori",
+        #         "img1_global",
+        #         "img1_local",
+        #         "img1_recon",
+        #         "img2_ori",
+        #         "img2_global",
+        #         "img2_local",
+        #         "img2_recon",
+        #     ],
+        # ):
 
-            if "local" in s_n:
-                img = torch.clamp(img, min=-1.0, max=1.0)
-                img = (img + 1) / 2
-                img = img.cpu()
-                img = transforms.ToPILImage()(img)
-                img = np.asarray(img)
-                img = cv2.cvtColor(img, cv2.COLOR_RGB2BGR)
-                img = cv2.rectangle(
-                    img,
-                    (ref_p_x * ratio, ref_p_y * ratio),
-                    ((ref_p_x + width) * ratio, (ref_p_y + height) * ratio),
-                    (102, 255, 255),
-                    1,
-                )
-                img = cv2.cvtColor(img, cv2.COLOR_BGR2RGB)
-                img = transforms.ToTensor()(img)
-                img = (img - 0.5) * 2
+        #     if "local" in s_n:
+        #         img = torch.clamp(img, min=-1.0, max=1.0)
+        #         img = (img + 1) / 2
+        #         img = img.cpu()
+        #         img = transforms.ToPILImage()(img)
+        #         img = np.asarray(img)
+        #         img = cv2.cvtColor(img, cv2.COLOR_RGB2BGR)
+        #         img = cv2.rectangle(
+        #             img,
+        #             (ref_p_x * ratio, ref_p_y * ratio),
+        #             ((ref_p_x + width) * ratio, (ref_p_y + height) * ratio),
+        #             (102, 255, 255),
+        #             1,
+        #         )
+        #         img = cv2.cvtColor(img, cv2.COLOR_BGR2RGB)
+        #         img = transforms.ToTensor()(img)
+        #         img = (img - 0.5) * 2
 
-            utils.save_image(
-                img,
-                f"{args.save_dir}/{part}/{part}_{s_n}.png",
-                nrow=args.batch,
-                normalize=True,
-                range=(-1, 1),
-            )
+        #     utils.save_image(
+        #         img,
+        #         f"{args.save_dir}/{part}/{part}_{s_n}.png",
+        #         nrow=args.batch,
+        #         normalize=True,
+        #         range=(-1, 1),
+        #     )
