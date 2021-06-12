@@ -13,6 +13,7 @@ Creative Commons, PO Box 1866, Mountain View, CA 94042, USA.
 max_colors = 3;
 colors = ["#FE2712", "#66B032", "#FEFE33"];
 original_image = null;
+original_choose = null;
 palette = [];
 palette_selected_index = null;
 
@@ -161,6 +162,8 @@ function OriginalNameSpace() {
 
 
         s.clear_canvas = function () {
+            $('#ex_dir').slider('refresh')
+            $('#ex_dir').slider('disable')
             s.body = null;
 
             for (var i = 0; i < max_colors; i++) {
@@ -215,6 +218,21 @@ function generateOutputNameSpace() {
     }
 }
 
+function updateOrigin(){
+    
+    $.ajax({
+        type: "POST",
+        url: "/post",    
+        data: JSON.stringify({ "type" : "original", "id": id, "original": original_image, "distance": parseInt($("#ex_dir").val())}),
+        dataType: "json",
+        contentType: "application/json",
+    }).done(function (data, textStatus, jqXHR) {
+        let url = data['result'];
+        p5_input_original.updateImage(url)
+        original_choose = url
+    });
+}
+
 function updateResult() {
     disableUI();
 
@@ -228,13 +246,11 @@ function updateResult() {
     $.ajax({
         type: "POST",
         url: "/post",
-        data: JSON.stringify({ "id": id, "original": original_image, "references": palette, "data_reference": data_reference, "shift_original": [p5_input_original.r_x, p5_input_original.r_y], "colors": colors }),
+        data: JSON.stringify({ "type" : "generate", "id": id, "original": original_choose, "references": palette, "data_reference": data_reference, "shift_original": [p5_input_original.r_x, p5_input_original.r_y], "colors": colors }),
         dataType: "json",
         contentType: "application/json",
     }).done(function (data, textStatus, jqXHR) {
-
         let urls = data['result'];
-
         $('#ex1').slider({ 'max': urls.length - 1, "setValue": urls.length - 1 });
         p5_output.updateImages(urls);
 
@@ -270,9 +286,10 @@ $(function () {
         $('.palette-item-class').remove();
         palette = [];
         original_image = null;
+        original_choose = null;
         palette_selected_index = null;
         $("#palette-eraser").click();
-
+        
         $("#sketch-clear").attr('disabled', true);
         $("#main-ui-submit").attr('disabled', true);
     });
@@ -288,20 +305,23 @@ $(function () {
     $("#class-picker").imagepicker({
         hide_select: false,
     });
-    $('#class-picker').after(
-        "<button type=\"submit\" class=\"form-control btn btn-primary col-md-2\" id=\"class-picker-submit-reference\">add to reference</button>"
-    );
+    
     $('#class-picker').after(
         "<button type=\"submit\" class=\"form-control btn btn-success col-md-2\" id=\"class-picker-submit-original\">add to original</button>"
     );
+
+    $('#class-picker').after(
+        "<button type=\"submit\" class=\"form-control btn btn-primary col-md-2\" id=\"class-picker-submit-reference\">add to reference</button>"
+    );
+   
 
     $("#class-picker-submit-reference").after(
         "<div class=\"row\" id=\"class-picker-ui\"></div>"
     )
     $("#class-picker").appendTo("#class-picker-ui");
-    $("#class-picker-submit-reference").appendTo("#class-picker-ui");
     $("#class-picker-submit-original").appendTo("#class-picker-ui");
-
+    $("#class-picker-submit-reference").appendTo("#class-picker-ui");
+    
     $("#class-picker-submit-reference").click(function () {
         const selected_class = $("#class-picker").val();
         const image_name_without_ext = selected_class.split('.').slice(0, -1).join('.');
@@ -330,16 +350,19 @@ $(function () {
         });
         $("#palette-" + image_name_without_ext).click();
         palette_selected_index = palette.indexOf(selected_class);
-        if (palette.length > 0 && original_image != null) {
+        if (palette.length > 0 && original_choose != null) {
             enableUI();
         }
     });
 
     $("#class-picker-submit-original").click(function () {
+        $('#ex_dir').slider('refresh')
+        $('#ex_dir').slider('enable')
         selected_class = $("#class-picker").val();
         p5_input_original.updateImage(base_path + selected_class);
         original_image = selected_class;
-        if (palette.length > 0 && original_image != null) {
+        original_choose = selected_class;
+        if (palette.length > 0 && original_choose  != null) {
             enableUI();
         }
     });
@@ -348,7 +371,11 @@ $(function () {
         $(".palette-item.selected").removeClass('selected');
         $(this).addClass('selected');
     });
+    $('#ex_dir').slider()
+    $('#ex_dir').slider('disable');
+    $('#ex_dir').change(()=>updateOrigin())
     $('#ex0').slider();
+
     $('#ex1').slider({
         formatter: function (value) {
             return 'interpolation: ' + (value / (16 - 1)).toFixed(2);
