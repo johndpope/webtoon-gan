@@ -93,16 +93,7 @@ class Model(nn.Module):
 
             transformed_images = []
 
-            for distance in range(-20, 1, 5):
-                modified_stylecode = fake_stylecode + distance * direction_vector
-                transformed_image, _ = self.g_ema(
-                    modified_stylecode, input_is_stylecode=True
-                )
-                transformed_images.append(transformed_image)
-
-            direction_vector[mask == 0] = 0
-
-            for distance in range(-20, 1, 5):
+            for distance in range(-20, 21, 4):
                 modified_stylecode = fake_stylecode + distance * direction_vector
                 transformed_image, _ = self.g_ema(
                     modified_stylecode, input_is_stylecode=True
@@ -198,6 +189,8 @@ if __name__ == "__main__":
         # flatten latent: Nx8x8x64 -> N x 8*8*64
         latent_codes = latent_codes.reshape(len(latent_codes), -1)
 
+
+    
         # get boundary
         part = args.part
 
@@ -216,8 +209,6 @@ if __name__ == "__main__":
                 f"semantic_manipulation/lr_neg_indices.npy"
             ).astype(int)
                         
-            print(part1_indexes)
-            print(part2_indexes)
             # get boundary using two parts.
             testset_ratio = 0.1
             np.random.shuffle(part1_indexes)
@@ -300,129 +291,39 @@ if __name__ == "__main__":
                 args.boundary,
             )
 
-        # with open(args.attr_celeba_hq, "r") as fp:
-        #     total_number = int(fp.readline())
-        #     print(f"{total_number} images, {len(latent_codes)} latent_codes")
-        #     # assert total_number == len(latent_codes)
-        #     attrs = fp.readline().strip().split(" ")
+        part1_loader = data.DataLoader(
+            dataset,
+            batch_size=args.batch,
+            sampler=Sampler_with_index(part1_indexes[:500]),
+        )
+        part1_loader = sample_data(part1_loader)
 
-        #     # print(attrs) # ['5_o_Clock_Shadow', 'Arched_Eyebrows', 'Attractive', 'Bags_Under_Eyes', 'Bald', 'Bangs', 'Big_Lips', 'Big_Nose', 'Black_Hair', 'Blond_Hair', 'Blurry', 'Brown_Hair', 'Bushy_Eyebrows', 'Chubby', 'Double_Chin', 'Eyeglasses', 'Goatee', 'Gray_Hair', 'Heavy_Makeup', 'High_Cheekbones', 'Male', 'Mouth_Slightly_Open', 'Mustache', 'Narrow_Eyes', 'No_Beard', 'Oval_Face', 'Pale_Skin', 'Pointy_Nose', 'Receding_Hairline', 'Rosy_Cheeks', 'Sideburns', 'Smiling', 'Straight_Hair', 'Wavy_Hair', 'Wearing_Earrings', 'Wearing_Hat', 'Wearing_Lipstick', 'Wearing_Necklace', 'Wearing_Necktie', 'Young']
-        #     # Please note that the order is different from part_pos_neg_indices
+        part2_loader = data.DataLoader(
+            dataset,
+            batch_size=args.batch,
+            sampler=Sampler_with_index(part2_indexes[:500]),
+        )
 
-        #     for i, attr in enumerate(attrs):
-        #         if attr == args.part:
-        #             part_index = i
-        #             print(part, part_index)
-        #             break
+        part2_loader = sample_data(part2_loader)
+        next(part2_loader)
+        part2_img = next(part2_loader).to(device)
 
-        #     part_index = 0
-        #     read_line = fp.readline()
-        #     GT_part1_indexes = []  # part1: Heavy_Makeup
-        #     GT_part2_indexes = []  # part2: others
+        # heavy makup
+        ref_p_x, ref_p_y, width, height = 0, 0, 8, 8
 
-        #     img_i = 0
-        #     pivot = 0
-        #     f_names = sorted(list(os.listdir("data/sketch256/raw_images/test/images/")))
+        mask = (ref_p_x, ref_p_y, width, height)
+        mask = torch.zeros(part2_img.shape[0], 64, 8, 8)
+        mask[:, :, ref_p_y : ref_p_y + height, ref_p_x : ref_p_x + width] = 1
 
-        #     while read_line:
-        #         parse_info = read_line.replace("  ", " ").strip().split(" ")
-        #         attr_info = parse_info[1:]
-        #         f_name = parse_info[0]  # first element is filename
+        part2_to_part1 = model(
+            part2_img, "transform_to_other_part", -boundary, mask=mask
+        )
 
-        #         if f_name == f_names[pivot]:
-        #             if attr_info[part_index] == "1":
-        #                 GT_part1_indexes.append(pivot)
-        #             else:
-        #                 GT_part2_indexes.append(pivot)
+        utils.save_image(
+            torch.cat([part2_img, part2_to_part1]),
+            f"{args.save_dir}/{part}/{model_name}_others_to_{part}.png",
+            nrow=args.batch,
+            normalize=True,
+            range=(-1, 1),
+        )
 
-        #             pivot += 1
-        #             if pivot == 500:
-        #                 break
-
-        #         img_i += 1
-        #         read_line = fp.readline()
-
-        # test_part1_indexes = GT_part1_indexes
-        # test_part2_indexes = GT_part2_indexes
-
-        # part1_loader = data.DataLoader(
-        #     test_dataset,
-        #     batch_size=args.batch,
-        #     sampler=Sampler_with_index(test_part1_indexes),
-        # )
-        # part1_loader = sample_data(part1_loader)
-
-        # part2_loader = data.DataLoader(
-        #     test_dataset,
-        #     batch_size=args.batch,
-        #     sampler=Sampler_with_index(test_part2_indexes),
-        # )
-
-        # part2_loader = sample_data(part2_loader)
-        # part2_img = next(part2_loader).to(device)
-
-        # # heavy makup
-        # ref_p_x, ref_p_y, width, height = 0, 0, 8, 8
-
-        # mask = (ref_p_x, ref_p_y, width, height)
-        # mask = torch.zeros(part2_img.shape[0], 64, 8, 8)
-        # mask[:, :, ref_p_y : ref_p_y + height, ref_p_x : ref_p_x + width] = 1
-
-        # part2_to_part1 = model(
-        #     part2_img, "transform_to_other_part", -boundary, mask=mask
-        # )
-
-        # utils.save_image(
-        #     torch.cat([part2_img, part2_to_part1]),
-        #     f"{args.save_dir}/{part}/{model_name}_others_to_{part}.png",
-        #     nrow=args.batch,
-        #     normalize=True,
-        #     range=(-1, 1),
-        # )
-
-        # # heavy makup
-        # s1 = np.array(list(range(13, 16 * 11, 16)))[[0, 3, 6, -1]]
-        # s2 = np.array(list(range(15, 16 * 11, 16)))[[0, 3, 6, -1]]
-        # ratio = train_args.size // train_args.latent_spatial_size
-
-        # for img, s_n in zip(
-        #     torch.cat([part2_img, part2_to_part1])[
-        #         np.concatenate((s1, s2), axis=0).tolist()
-        #     ],
-        #     [
-        #         "img1_ori",
-        #         "img1_global",
-        #         "img1_local",
-        #         "img1_recon",
-        #         "img2_ori",
-        #         "img2_global",
-        #         "img2_local",
-        #         "img2_recon",
-        #     ],
-        # ):
-
-        #     if "local" in s_n:
-        #         img = torch.clamp(img, min=-1.0, max=1.0)
-        #         img = (img + 1) / 2
-        #         img = img.cpu()
-        #         img = transforms.ToPILImage()(img)
-        #         img = np.asarray(img)
-        #         img = cv2.cvtColor(img, cv2.COLOR_RGB2BGR)
-        #         img = cv2.rectangle(
-        #             img,
-        #             (ref_p_x * ratio, ref_p_y * ratio),
-        #             ((ref_p_x + width) * ratio, (ref_p_y + height) * ratio),
-        #             (102, 255, 255),
-        #             1,
-        #         )
-        #         img = cv2.cvtColor(img, cv2.COLOR_BGR2RGB)
-        #         img = transforms.ToTensor()(img)
-        #         img = (img - 0.5) * 2
-
-        #     utils.save_image(
-        #         img,
-        #         f"{args.save_dir}/{part}/{part}_{s_n}.png",
-        #         nrow=args.batch,
-        #         normalize=True,
-        #         range=(-1, 1),
-        #     )

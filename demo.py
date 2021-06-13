@@ -75,6 +75,20 @@ class Model(nn.Module):
 
         return mixed
 
+    def forward_direction(self, image, distance, direction_vector=None):
+        get_cuda_device = image.get_device()
+        fake_stylecode = self.e_ema(image)
+        direction_vector = direction_vector.unsqueeze(0).to(get_cuda_device)
+        modified_stylecode = fake_stylecode + distance * direction_vector
+        transformed_image, _ = self.g_ema(
+            modified_stylecode, 
+            input_is_stylecode=True
+        )
+    
+        return transformed_image
+        
+
+
 
 @app.route("/")
 def index():
@@ -99,7 +113,9 @@ def hex2val(hex):
 def my_morphed_images(
     original, references, masks, shift_values, interpolation=8, save_dir=None
 ):
-    original_image = Image.open(base_path + original)
+    
+    original_path = original.split('?')[0] if 'demo' in original else base_path + original
+    original_image = Image.open(original_path)
     reference_images = []
 
     for ref in references:
@@ -121,8 +137,9 @@ def my_morphed_images(
     )
     reference_images = (reference_images - 0.5) * 2
 
-    if (original_image.shape[1] == 1 and reference_images.shape[1] == 1):  # for grey-scale image
+    if original_image.shape[1] == 1:  # for grey-scale image
         original_image = original_image.repeat(1, 3, 1, 1)
+    if reference_images.shape[1] == 1:
         reference_images = reference_images.repeat(1, 3, 1, 1)
 
     masks = masks[: len(references)]
@@ -143,57 +160,109 @@ def my_morphed_images(
 
     return mixed
 
+@torch.no_grad()
+def direction_change(original, distance, direction, save_dir=None):
+    original_image = Image.open(base_path + original)
+    original_image = TF.to_tensor(original_image).unsqueeze(0)
+    original_image = F.interpolate(
+        original_image, size=(train_args.size, train_args.size)
+    )
+    original_image = (original_image - 0.5) * 2
+
+    if original_image.shape[1] == 1:  # for grey-scale image
+        original_image = original_image.repeat(1, 3, 1, 1)
+        
+ 
+
+    original_image, direction = original_image.to(device), direction.to(device)
+
+    mixed = model.forward_direction(original_image, distance, direction).cpu()
+    mixed = np.asarray(
+        np.clip(mixed * 127.5 + 127.5, 0.0, 255.0), dtype=np.uint8
+    ).transpose(
+        (0, 2, 3, 1)
+    )  # 0~255
+
+    return mixed
 
 @app.route("/post", methods=["POST"])
 def post():
     if request.method == "POST":
         user_id = request.json["id"]
-        original = request.json["original"]
-        references = request.json["references"]
-        colors = [hex2val(hex) for hex in request.json["colors"]]
-        data_reference_bin = []
-        shift_values = request.json["shift_original"]
         save_dir = f"demo/static/generated/{user_id}"
-        masks = []
+        if request.json['type'] == 'original':
 
-        if not os.path.exists(save_dir):
-            os.makedirs(save_dir, exist_ok=True)
+            if not os.path.exists(save_dir):
+                os.makedirs(save_dir, exist_ok=True)
 
-        for i, d_ref in enumerate(request.json["data_reference"]):
-            data_reference_bin.append(base64.b64decode(d_ref))
-
-            with open(f"{save_dir}/classmap_reference_{i}.png", "wb") as f:
-                f.write(bytearray(data_reference_bin[i]))
-
-        for i in range(len(colors)):
-            class_map = Image.open(io.BytesIO(data_reference_bin[i]))
-            class_map = np.array(class_map)[:, :, :3]
-            mask = np.array(
-                (np.isclose(class_map, colors[i], atol=2.0)).all(axis=2), dtype=np.uint8
-            )  # * 255
-            mask = np.asarray(mask, dtype=np.float32).reshape(
-                (1, mask.shape[0], mask.shape[1])
+            original = request.json["original"]
+            distance = request.json["distance"]
+           
+            generated_images = direction_change(
+                original,
+                distance,
+                direction,
+                save_dir=save_dir,
             )
-            masks.append(mask)
+            paths = []
 
-        generated_images = my_morphed_images(
-            original,
-            references,
-            masks,
-            shift_values,
-            interpolation=args.interpolation_step,
-            save_dir=save_dir,
-        )
-        paths = []
+            
+            path = f"{save_dir}/origin_{distance}.png"
+            Image.fromarray(generated_images[0]).save(path)
+            path += "?{}".format(secrets.token_urlsafe(16))
+            
+            return flask.jsonify(result=path)
+            
+        else:
+            
+            original = request.json["original"]
+            references = request.json["references"]
+            print(references)
+            colors = [hex2val(hex) for hex in request.json["colors"]]
+            data_reference_bin = []
+            shift_values = request.json["shift_original"]
+            
+            masks = []
 
-        for i in range(args.interpolation_step):
-            path = f"{save_dir}/{i}.png"
-            Image.fromarray(generated_images[i]).save(path)
-            paths.append(path + "?{}".format(secrets.token_urlsafe(16)))
+            if not os.path.exists(save_dir):
+                os.makedirs(save_dir, exist_ok=True)
 
-        return flask.jsonify(result=paths)
+            for i, d_ref in enumerate(request.json["data_reference"]):
+                data_reference_bin.append(base64.b64decode(d_ref))
+
+                with open(f"{save_dir}/classmap_reference_{i}.png", "wb") as f:
+                    f.write(bytearray(data_reference_bin[i]))
+
+            for i in range(len(colors)):
+                class_map = Image.open(io.BytesIO(data_reference_bin[i]))
+                class_map = np.array(class_map)[:, :, :3]
+                mask = np.array(
+                    (np.isclose(class_map, colors[i], atol=2.0)).all(axis=2), dtype=np.uint8
+                )  # * 255
+                mask = np.asarray(mask, dtype=np.float32).reshape(
+                    (1, mask.shape[0], mask.shape[1])
+                )
+                masks.append(mask)
+
+            generated_images = my_morphed_images(
+                original,
+                references,
+                masks,
+                shift_values,
+                interpolation=args.interpolation_step,
+                save_dir=save_dir,
+            )
+            paths = []
+
+            for i in range(args.interpolation_step):
+                path = f"{save_dir}/{i}.png"
+                Image.fromarray(generated_images[i]).save(path)
+                paths.append(path + "?{}".format(secrets.token_urlsafe(16)))
+            
+            return flask.jsonify(result=paths)
     else:
         return redirect(url_for("index"))
+
 
 
 if __name__ == "__main__":
@@ -206,6 +275,7 @@ if __name__ == "__main__":
     )
     parser.add_argument("--interpolation_step", type=int, default=16)
     parser.add_argument("--ckpt", type=str, required=True)
+    parser.add_argument("--boundary", type=str, required=True)
     parser.add_argument(
         "--MAX_CONTENT_LENGTH", type=int, default=10000000
     )  # allow maximum 10 MB POST
@@ -218,10 +288,17 @@ if __name__ == "__main__":
     train_args = ckpt["train_args"]
     print("train_args: ", train_args)
 
+    print('Import Model...')
     model = Model().to(device)
     model.g_ema.load_state_dict(ckpt["g_ema"])
     model.e_ema.load_state_dict(ckpt["e_ema"])
     model.eval()
+    print('Success.')
+    
+    print('Import Boundary...')
+    boundary_infos = torch.load(args.boundary)
+    direction = -boundary_infos["boundary"]
+    print('Success.')
 
     app.debug = True
     app.run(host="127.0.0.1", port=6006)
