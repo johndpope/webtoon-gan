@@ -1,6 +1,6 @@
 /*
-StyleMapGAN
-Copyright (c) 2021-present NAVER Corp.
+WebotoonGAN
+Copyright (c) 2021-present Hyunkwon Ko, Subin An
 
 This work is licensed under the Creative Commons Attribution-NonCommercial
 4.0 International License. To view a copy of this license, visit
@@ -23,9 +23,12 @@ p5_input_reference = null;
 p5_output = null;
 sync_flag = true;
 id = null;
+let brush_size = 20
 
 function ReferenceNameSpace() {
+    
     return function (s) {
+        
         s.setup = function () {
             s.pixelDensity(1);
             s.createCanvas(canvas_size, canvas_size);
@@ -41,6 +44,7 @@ function ReferenceNameSpace() {
         }
 
         s.draw = function () {
+            
             s.background(255);
             s.noTint();
             if (s.body != null) {
@@ -50,6 +54,26 @@ function ReferenceNameSpace() {
 
             if (palette_selected_index != null)
                 s.image(s.mask[palette_selected_index], 0, 0);
+
+            s.fill('rgba(46, 49, 49, 0.4)')
+            s.strokeWeight(0);
+            s.ellipse(s.mouseX, s.mouseY, brush_size, brush_size)
+            
+           
+        }
+
+        s.keyPressed = function () {
+
+            if (s.keyCode === 219) {
+                brush_size -= 5;
+                brush_size = Math.max(brush_size, 5)
+            }
+            if (s.keyCode === 221) {
+                brush_size += 5;
+                brush_size = Math.min(brush_size, 100)
+            }
+            
+            
         }
 
         s.mouseDragged = function () {
@@ -57,7 +81,7 @@ function ReferenceNameSpace() {
 
             var c = $('.palette-item.selected').data('class');
             if (c != -1) {
-                var brush_size = parseInt($("#ex0").val())
+                
                 var col = s.color(colors[palette.indexOf(c)]);
                 s.mask[palette_selected_index].noStroke();
                 s.mask[palette_selected_index].fill(col);
@@ -66,7 +90,7 @@ function ReferenceNameSpace() {
             } else { // eraser
                 if (sync_flag == true) {
                     var col = s.color(0, 0);
-                    erase_size = 20;
+                    erase_size = brush_size/2;
                     s.mask[palette_selected_index].loadPixels();
                     for (var x = Math.max(0, Math.floor(s.mouseX) - erase_size); x < Math.min(canvas_size, Math.floor(s.mouseX) + erase_size); x++) {
                         for (var y = Math.max(0, Math.floor(s.mouseY) - erase_size); y < Math.min(canvas_size, Math.floor(s.mouseY) + erase_size); y++) {
@@ -278,7 +302,7 @@ $(function () {
     $("#main-ui-submit").click(function () {
         updateResult();
     });
-
+    
     $("#sketch-clear").click(function () {
         p5_input_reference.clear_canvas();
         p5_input_original.clear_canvas();
@@ -389,7 +413,8 @@ $(function () {
     p5_input_reference = new p5(ReferenceNameSpace(), "p5-reference");
     p5_input_original = new p5(OriginalNameSpace(), "p5-original");
     p5_output = new p5(generateOutputNameSpace(), "p5-right");
-
+    
+    
     // https://cofs.tistory.com/363
     var getCookie = function (name) {
         var value = document.cookie.match('(^|;) ?' + name + '=([^;]*)(;|$)');
@@ -403,6 +428,7 @@ $(function () {
     };
 
     id = getCookie("id");
+
 
     if (id == null) {
         // https://stackoverflow.com/questions/1349404/generate-random-string-characters-in-javascript
