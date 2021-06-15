@@ -24,6 +24,7 @@ p5_output = null;
 sync_flag = true;
 id = null;
 let brush_size = 20
+let angle = 0
 
 function ReferenceNameSpace() {
     
@@ -63,7 +64,7 @@ function ReferenceNameSpace() {
         }
 
         s.keyPressed = function () {
-
+            
             if (s.keyCode === 219) {
                 brush_size -= 5;
                 brush_size = Math.max(brush_size, 5)
@@ -138,6 +139,7 @@ function OriginalNameSpace() {
             s.d_x = Array(max_colors).fill(0);
             s.d_y = Array(max_colors).fill(0);
             mousePressed_here = false;
+            direction_mode = false;
         }
 
 
@@ -152,7 +154,7 @@ function OriginalNameSpace() {
             for (var i = 0; i < max_colors; i++) {
                 s.image(p5_input_reference.mask[i], s.r_x[i], s.r_y[i]);
             }
-
+            // s.line(s.mouseX, s.mouseY, s.pmouseX, s.pmouseY);
         }
 
         s.mousePressed = function (e) {
@@ -164,19 +166,44 @@ function OriginalNameSpace() {
             }
         }
 
+        s.keyPressed = function () {
+            // keyboard press E
+            if(s.keyCode === 69){
+                if(direction_mode) $('#p5-original').css({outline: 'none'})
+                else $('#p5-original').css({outline: 'solid'})
+                direction_mode = !direction_mode
+            }
+
+            if (s.keyCode === 37) {
+                angle -= 4;
+                angle = Math.max(angle, -16);
+                updateOrigin()
+            }
+            if (s.keyCode === 39) {
+                angle += 4;
+                angle = Math.min(angle, 16);
+                updateOrigin()
+            }
+        }
+
         s.mouseReleased = function (e) {
             s.mousePressed_here = false;
         }
 
         s.mouseDragged = function (e) {
             if (ui_uninitialized || s.mousePressed_here == false) return;
-            if (s.mouseX <= s.width && s.mouseX >= 0 && s.mouseY <= s.height && s.mouseY >= 0) {
+            if(direction_mode){
+                
+            }
+            else{
+                if (s.mouseX <= s.width && s.mouseX >= 0 && s.mouseY <= s.height && s.mouseY >= 0) {
 
-                s.r_x[palette_selected_index] += s.mouseX - s.d_x[palette_selected_index];
-                s.r_y[palette_selected_index] += s.mouseY - s.d_y[palette_selected_index];
+                    s.r_x[palette_selected_index] += s.mouseX - s.d_x[palette_selected_index];
+                    s.r_y[palette_selected_index] += s.mouseY - s.d_y[palette_selected_index];
 
-                s.d_x[palette_selected_index] = s.mouseX;
-                s.d_y[palette_selected_index] = s.mouseY;
+                    s.d_x[palette_selected_index] = s.mouseX;
+                    s.d_y[palette_selected_index] = s.mouseY;
+                }
             }
         }
 
@@ -186,8 +213,9 @@ function OriginalNameSpace() {
 
 
         s.clear_canvas = function () {
-            $('#ex_dir').slider('refresh')
-            $('#ex_dir').slider('disable')
+            // $('#ex_dir').slider('refresh')
+            // $('#ex_dir').slider('disable')
+            angle = 0;
             s.body = null;
 
             for (var i = 0; i < max_colors; i++) {
@@ -247,7 +275,7 @@ function updateOrigin(){
     $.ajax({
         type: "POST",
         url: "/post",    
-        data: JSON.stringify({ "type" : "original", "id": id, "original": original_image, "distance": parseInt($("#ex_dir").val())}),
+        data: JSON.stringify({ "type" : "original", "id": id, "original": original_image, "distance": angle}),
         dataType: "json",
         contentType: "application/json",
     }).done(function (data, textStatus, jqXHR) {
@@ -317,15 +345,24 @@ $(function () {
         $("#sketch-clear").attr('disabled', true);
         $("#main-ui-submit").attr('disabled', true);
     });
-
-    for (var i = 0; i < image_paths.length; i++) {
-        var image_name = image_paths[i];
-
-        $("#class-picker").append(
-            '<option data-img-src="' + base_path + image_name + '" data-img-alt="' + image_name + '" value="' + (image_name) + '">' + image_name + '</option>'
-        );
+    console.log(image_paths)
+    for(var idx = 0 ; idx < image_paths.length ; idx++){
+        let [dir_path, dirs, files] = image_paths[idx]
+        let dir_name = dir_path.split('/').reverse()[0]
+        
+        if(dir_name === '') dir_name = 'etc'
+        $("#class-picker").append(`<optgroup id="${dir_name}" label=${dir_name}>`)
+        
+        for (var i = 0; i < files.length; i++) {
+            var image_name = files[i];
+            let image_path = (dir_path=='etc'?'': (dir_path+ '/') )+  image_name 
+            $(`#${dir_name}`).append(
+                '<option data-img-src="' + image_path + '" data-img-alt="' + image_name + '" value="' + (image_name) + '">' + image_name + '</option>'
+            );
+            
+        }
+        $("#class-picker").append('</optgroup>')
     }
-
     $("#class-picker").imagepicker({
         hide_select: false,
     });
@@ -347,9 +384,8 @@ $(function () {
     $("#class-picker-submit-reference").appendTo("#class-picker-ui");
     
     $("#class-picker-submit-reference").click(function () {
-        const selected_class = $("#class-picker").val();
-        const image_name_without_ext = selected_class.split('.').slice(0, -1).join('.');
-
+        let selected_class =  $("#class-picker option:selected").attr('data-img-src');
+        const image_name_without_ext = selected_class.split('/').reverse()[0].split('.').slice(0, -1).join('.');
         if (palette.length >= max_colors || palette.indexOf(selected_class) != -1) {
             return;
         }
@@ -360,7 +396,7 @@ $(function () {
             "\" style=\"background-color: " + colors[palette.length] + ";\"></li>");
 
         $("#palette-" + image_name_without_ext).append(
-            "<img src=\"" + base_path + selected_class + "\">"
+            "<img src=\"" + selected_class + "\">"
         )
 
         palette.push((selected_class));
@@ -368,7 +404,7 @@ $(function () {
         $("#palette-" + image_name_without_ext).click(function () {
             $(".palette-item.selected").removeClass('selected');
             $(this).addClass('selected');
-            p5_input_reference.updateImage(base_path + selected_class);
+            p5_input_reference.updateImage(selected_class);
             palette_selected_index = palette.indexOf(selected_class);
 
         });
@@ -380,10 +416,10 @@ $(function () {
     });
 
     $("#class-picker-submit-original").click(function () {
-        $('#ex_dir').slider('refresh')
-        $('#ex_dir').slider('enable')
-        selected_class = $("#class-picker").val();
-        p5_input_original.updateImage(base_path + selected_class);
+        angle = 0;
+        selected_class =  $("#class-picker option:selected").attr('data-img-src');
+        
+        p5_input_original.updateImage(selected_class);
         original_image = selected_class;
         original_choose = selected_class;
         if (palette.length > 0 && original_choose  != null) {
