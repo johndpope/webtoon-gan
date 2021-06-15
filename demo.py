@@ -10,6 +10,7 @@ Creative Commons, PO Box 1866, Mountain View, CA 94042, USA.
 
 import flask
 from flask import Flask, render_template, request, redirect, url_for
+from werkzeug.utils import secure_filename
 import numpy as np
 import base64
 import os
@@ -97,7 +98,7 @@ def index():
         "index.html",
         canvas_size=train_args.size,
         base_path=base_path,
-        image_paths=list(os.listdir(base_path)),
+        image_paths=list(os.walk(base_path)),
     )
 
 
@@ -119,9 +120,10 @@ def my_morphed_images(
     reference_images = []
 
     for ref in references:
+        ref_path = ref.split('?')[0] if 'demo' in ref else base_path + ref
         reference_images.append(
             TF.to_tensor(
-                Image.open(base_path + ref).resize((train_args.size, train_args.size))
+                Image.open(ref_path).resize((train_args.size, train_args.size))
             )
         )
 
@@ -162,7 +164,8 @@ def my_morphed_images(
 
 @torch.no_grad()
 def direction_change(original, distance, direction, save_dir=None):
-    original_image = Image.open(base_path + original)
+    original_path = original.split('?')[0] if 'demo' in original else base_path + original
+    original_image = Image.open(original_path)
     original_image = TF.to_tensor(original_image).unsqueeze(0)
     original_image = F.interpolate(
         original_image, size=(train_args.size, train_args.size)
@@ -264,6 +267,15 @@ def post():
         return redirect(url_for("index"))
 
 
+# 파일 업로드 처리
+@app.route('/fileUpload', methods = ['GET', 'POST'])
+def upload_file():
+    if request.method == 'POST':
+        f = request.files['file']
+        # 저장할 경로 + 파일명
+        f.save(os.path.join(base_path, secure_filename(f.filename)))
+        return redirect(url_for('index'))
+
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
@@ -301,4 +313,4 @@ if __name__ == "__main__":
     print('Success.')
 
     app.debug = True
-    app.run(host="127.0.0.1", port=6006)
+    app.run(host="127.0.0.1", port=7000)

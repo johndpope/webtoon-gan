@@ -24,10 +24,10 @@
                     <div id="p5-original-wrapper" class="p5-wrapper">
                         <div id="p5-original" class="p5"></div>
                     </div>
-                    <div id="result-control" class="row">
+                    <!-- <div id="result-control" class="row">
                         <input id="ex_dir" data-slider-id='directionSlider' type="text" data-slider-min="-20" data-slider-max="20"
                             data-slider-step="5" data-slider-value="0" />
-                    </div>
+                    </div> -->
                 </div>
 
                 <div class="col-md-3">
@@ -76,6 +76,11 @@
                     </select>
                 </div>
             </div>
+            <form action = "http://localhost:7000/fileUpload" method = "POST"
+            enctype = "multipart/form-data">
+            <input type = "file" name = "file" />
+            <input type = "submit"/>
+        </form>
         </div>
     </div>
 </div>
