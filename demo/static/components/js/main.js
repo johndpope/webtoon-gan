@@ -345,13 +345,14 @@ $(function () {
         $("#sketch-clear").attr('disabled', true);
         $("#main-ui-submit").attr('disabled', true);
     });
-    console.log(image_paths)
+    
     for(var idx = 0 ; idx < image_paths.length ; idx++){
         let [dir_path, dirs, files] = image_paths[idx]
         let dir_name = dir_path.split('/').reverse()[0]
         
         if(dir_name === '') dir_name = 'etc'
         $("#class-picker").append(`<optgroup id="${dir_name}" label=${dir_name}>`)
+        $("#upload-select").append(`<option value="${dir_name}">${dir_name}</option>>`)
         
         for (var i = 0; i < files.length; i++) {
             var image_name = files[i];
@@ -478,4 +479,83 @@ $(function () {
         id = result;
         setCookie("id", result, 1);
     }
+    
+    $("#item-img-output").attr("src", "/demo/static/components/img/add.png");
+    
+    var $uploadCrop, tempFilename, rawImg, imageId, file_name;
+
+    function readFile(input) {
+         if (input.files && input.files[0]) {
+          var reader = new FileReader();
+            reader.onload = function (e) {
+                $('.upload-demo').addClass('ready');
+                $('#cropImagePop').modal('show');
+                rawImg = e.target.result;
+            }
+            reader.readAsDataURL(input.files[0]);
+            file_name = input.files[0].name
+        }
+        else {
+            swal("Sorry - you're browser doesn't support the FileReader API");
+        }
+    }
+
+    $uploadCrop = $('#upload-demo').croppie({
+        viewport: {
+            width: 256,
+            height: 256,
+        },
+        enforceBoundary: false,
+        enableExif: true
+    });
+    
+    $('#cropImagePop').on('shown.bs.modal', function(){
+        $uploadCrop.croppie('bind', {
+            url: rawImg
+        }).then(function(){
+            console.log('jQuery bind complete');
+        });
+    });
+
+    $('.item-img').on('change', function () { 
+        imageId = $(this).data('id'); 
+        tempFilename = $(this).val();
+        $('#cancelCropBtn').data('id', imageId); 
+        readFile(this); 
+    });
+
+    $('#cropImageBtn').on('click', function (ev) {
+        $uploadCrop.croppie('result', {
+            type: 'base64',
+            format: 'jpeg',
+            size: {width: 256, height: 256}
+        }).then(function (resp) {
+            let directory = $("#upload-select option:selected").val()
+            $('#cropImagePop').modal('hide');
+            
+            $.ajax({
+                type: "POST",
+                url: "/post",
+                data: JSON.stringify({ "type" : "upload", "id": id, "image":resp, "directory":directory, "file_name": file_name}),
+                dataType: "json",
+                contentType: "application/json",
+            }).done(function (data, textStatus, jqXHR) {
+                console.log('hello')
+                window.location.href = window.location.href
+                
+                
+            });
+        });
+    });
+
+    $('#download-button').on('click', function(){
+        
+        var canvas = $( "#p5-right canvas" ).get()[0]
+        image = canvas.toDataURL("image/png").replace("image/png", "image/octet-stream");
+        var link = document.createElement('a');
+        link.download = "edited.png";
+        link.href = image;
+        link.click();
+    });
+
 })

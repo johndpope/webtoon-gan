@@ -121,11 +121,14 @@ def my_morphed_images(
 
     for ref in references:
         ref_path = ref.split('?')[0] if 'demo' in ref else base_path + ref
-        reference_images.append(
-            TF.to_tensor(
-                Image.open(ref_path).resize((train_args.size, train_args.size))
-            )
-        )
+        reference_image =  TF.to_tensor(Image.open(ref_path).resize((train_args.size, train_args.size)))
+        if reference_image.ndim == 2 :
+            reference_image = reference_image.unsqueeze(0)
+        if reference_image.shape[0] == 1 :
+            reference_image = reference_image.repeat(3, 1, 1)
+
+        reference_images.append(reference_image)
+        
 
     original_image = TF.to_tensor(original_image).unsqueeze(0)
     original_image = F.interpolate(
@@ -141,8 +144,7 @@ def my_morphed_images(
 
     if original_image.shape[1] == 1:  # for grey-scale image
         original_image = original_image.repeat(1, 3, 1, 1)
-    if reference_images.shape[1] == 1:
-        reference_images = reference_images.repeat(1, 3, 1, 1)
+   
 
     masks = masks[: len(references)]
     masks = torch.from_numpy(np.stack(masks))
@@ -193,11 +195,10 @@ def post():
     if request.method == "POST":
         user_id = request.json["id"]
         save_dir = f"demo/static/generated/{user_id}"
+        if not os.path.exists(save_dir):
+            os.makedirs(save_dir, exist_ok=True)
+
         if request.json['type'] == 'original':
-
-            if not os.path.exists(save_dir):
-                os.makedirs(save_dir, exist_ok=True)
-
             original = request.json["original"]
             distance = request.json["distance"]
            
@@ -216,20 +217,16 @@ def post():
             
             return flask.jsonify(result=path)
             
-        else:
+        elif request.json['type'] == 'generate':
             
             original = request.json["original"]
             references = request.json["references"]
-            print(references)
+            
             colors = [hex2val(hex) for hex in request.json["colors"]]
             data_reference_bin = []
             shift_values = request.json["shift_original"]
             
             masks = []
-
-            if not os.path.exists(save_dir):
-                os.makedirs(save_dir, exist_ok=True)
-
             for i, d_ref in enumerate(request.json["data_reference"]):
                 data_reference_bin.append(base64.b64decode(d_ref))
 
@@ -263,19 +260,19 @@ def post():
                 paths.append(path + "?{}".format(secrets.token_urlsafe(16)))
             
             return flask.jsonify(result=paths)
+
+        elif request.json['type'] == 'upload':
+            cropped_image = request.json["image"].replace('data:image/jpeg;base64,','')
+            
+            directory = request.json["directory"]
+            file_name = request.json["file_name"]
+            if directory == 'etc' : directory = ""
+            print(file_name)
+            with open(os.path.join("demo/static/components/img/sketch", directory, file_name), "wb") as f:
+                f.write(bytearray(base64.b64decode(cropped_image)))
+            return  flask.jsonify(result=['end'])
     else:
         return redirect(url_for("index"))
-
-
-# 파일 업로드 처리
-@app.route('/fileUpload', methods = ['GET', 'POST'])
-def upload_file():
-    if request.method == 'POST':
-        f = request.files['file']
-        # 저장할 경로 + 파일명
-        f.save(os.path.join(base_path, secure_filename(f.filename)))
-        return redirect(url_for('index'))
-
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()

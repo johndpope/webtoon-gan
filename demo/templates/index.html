@@ -39,8 +39,6 @@
                         <button class="btn btn-danger" id="sketch-clear" disabled>clear canvas and palette</button>
                     </div>
                 </div>
-
-                
                 <div class="col-md-1 my-auto" id="main-ui-middle">
                     <button type="submit" class="form-control btn btn-danger" id="main-ui-submit" disabled>➞</button>
                 </div>
@@ -54,6 +52,7 @@
                         <input id="ex1" data-slider-id='ex1Slider' type="text" data-slider-min="0" data-slider-max="15"
                             data-slider-step="1" data-slider-value="15" />
                     </div>
+                    <button id='download-button' type="button" class="btn btn-secondary btn-sm">Download</button>
                 </div>
             </div>
             <!-- palette -->
@@ -68,6 +67,7 @@
                     </ul>
                 </div>
             </div>
+
             <!-- all class list -->
             <div class="row justify-content-md-center" id="class-list">
                 <div class="col-md-11">
@@ -76,11 +76,45 @@
                     </select>
                 </div>
             </div>
-            <form action = "http://localhost:7000/fileUpload" method = "POST"
-            enctype = "multipart/form-data">
-            <input type = "file" name = "file" />
-            <input type = "submit"/>
-        </form>
+
+            <div class="container">
+                <div class="row">
+                    <div class="col-xs-12">
+                        <label class="cabinet center-block">
+                            <figure>
+                                <div class='thumbnail'>
+                                    <img src="" class="img-responsive" id="item-img-output" />
+                                </div>
+                                <input type="file" class="item-img file center-block" name="file_photo"/>
+                            </figure>   
+
+                        </label>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="modal fade bd-example-modal-lg" id="cropImagePop" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+                <div class="modal-dialog modal-lg">
+                    <div class="modal-content">
+                        <div class="modal-header">
+                            <h4 class="modal-title" id="myModalLabel">Edit Photo</h4>
+                            <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                            
+                        </div>
+                        <div class="modal-body">
+                            <select id="upload-select" class="custom-select">
+                            </select>
+                            <div id="upload-demo" class="text-center"></div>
+                            
+
+                        </div>
+                        <div class="modal-footer">
+                            <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+                            <button type="button" id="cropImageBtn" class="btn btn-primary">Crop</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
         </div>
     </div>
 </div>
