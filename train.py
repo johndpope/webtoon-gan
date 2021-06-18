@@ -517,6 +517,7 @@ if __name__ == "__main__":
         default="celeba_hq",
         choices=[
             "sketch",  # added
+            "sketch_full",  # added
             "celeba_hq",
             "afhq",
             "ffhq",
