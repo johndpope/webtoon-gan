@@ -50,6 +50,9 @@ elif [ $CMD == "create-lmdb-dataset" ]; then
     elif  [ $DATASET == "sketch256" ]; then
         DATASET_FOLDER="./data/sketch256"
         TARGET_SIZE=256
+    elif  [ $DATASET == "sketch256_full" ]; then
+        DATASET_FOLDER="./data/sketch256_full"
+        TARGET_SIZE=256    
     elif  [ $DATASET == "sketch" ]; then
         DATASET_FOLDER="./data/sketch"
         TARGET_SIZE=256
