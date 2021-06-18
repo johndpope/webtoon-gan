@@ -119,7 +119,7 @@ if __name__ == "__main__":
     parser.add_argument("--batch", type=int, default=16)
     parser.add_argument("--num_workers", type=int, default=2)
     parser.add_argument(
-        "--part", type=str, default="left_right"
+        "--part", type=str, default="lr"
     )  
     parser.add_argument("--svm_train_iter", type=int, default=None)
 
@@ -203,10 +203,10 @@ if __name__ == "__main__":
 
         else:
             part1_indexes = np.load(
-                f"semantic_manipulation/lr_pos_indices.npy"
+                f"semantic_manipulation/{part}_pos_indices.npy"
             ).astype(int)
             part2_indexes = np.load(
-                f"semantic_manipulation/lr_neg_indices.npy"
+                f"semantic_manipulation/{part}_neg_indices.npy"
             ).astype(int)
                         
             # get boundary using two parts.
