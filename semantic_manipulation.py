@@ -111,33 +111,27 @@ def sample_data(loader):
 
 if __name__ == "__main__":
     device = "cuda"
-
     parser = argparse.ArgumentParser()
     parser.add_argument("--ckpt", type=str)
     parser.add_argument("--save_dir", type=str, default="expr/semantic_manipulation")
-    parser.add_argument("--LMDB", type=str, default="data/celeba_hq/LMDB")
+    parser.add_argument("--LMDB", type=str, default="data/sketch256/LMDB")
     parser.add_argument("--batch", type=int, default=16)
     parser.add_argument("--num_workers", type=int, default=2)
-    parser.add_argument(
-        "--part", type=str, default="lr"
-    )  
-    parser.add_argument("--svm_train_iter", type=int, default=None)
-
+    parser.add_argument("--part", type=str, default="lr")  
+    parser.add_argument("--svm_train_iter", type=int, default=1000)
+    parser.add_argument("--augmentation", type=str, default='default') # flip
     args = parser.parse_args()
-
-    args.attr_celeba_hq = "semantic_manipulation/list_attr_celeba_hq.txt"
 
     args.train_lmdb = f"{args.LMDB}_train"
     args.val_lmdb = f"{args.LMDB}_val"
     args.test_lmdb = f"{args.LMDB}_test"
 
     model_name = args.ckpt.split("/")[-1].replace(".pt", "")
-
-    os.makedirs(os.path.join(args.save_dir, args.part), exist_ok=True)
+    part = args.part
+    
+    os.makedirs(os.path.join(args.save_dir, part), exist_ok=True)
     args.inverted_npy = os.path.join(args.save_dir, f"{model_name}_inverted.npy")
-    args.boundary = os.path.join(
-        args.save_dir, args.part, f"{model_name}_{args.part}_boundary.npy"
-    )
+    args.boundary = os.path.join(args.save_dir, args.part, f"{model_name}_{part}_boundary_{args.augmentation}.npy")
     print(args)
 
     ckpt = torch.load(args.ckpt)
@@ -154,6 +148,8 @@ if __name__ == "__main__":
             transforms.Normalize((0.5, 0.5, 0.5), (0.5, 0.5, 0.5), inplace=True),
         ]
     )
+
+    # Dataset Load
     train_dataset = MultiResolutionDataset(args.train_lmdb, transform, train_args.size)
     val_dataset = MultiResolutionDataset(args.val_lmdb, transform, train_args.size)
     test_dataset = MultiResolutionDataset(args.test_lmdb, transform, train_args.size)
@@ -178,10 +174,33 @@ if __name__ == "__main__":
             for images in tqdm(loader):
                 images = images.to(device)
                 project_latent = model(images, "project_latent")
-
                 latent_codes_enc.append(project_latent.cpu().numpy())
             latent_codes = np.concatenate(latent_codes_enc, axis=0)
             np.save(f"{args.inverted_npy}", latent_codes)
+
+        if args.augmentation == 'flip':
+
+            if os.path.isfile(args.inverted_npy.replace('inverted','flip_inverted')):
+                print("flipped_inverted_npy exists!")
+                latent_codes_flip = np.load(args.inverted_npy.replace('inverted','flip_inverted'))
+            else:
+                loader = data.DataLoader(
+                    dataset,
+                    batch_size=args.batch,
+                    sampler=data_sampler(dataset, shuffle=False),
+                    num_workers=args.num_workers,
+                    pin_memory=True,
+                )
+                latent_codes_enc_flip = []
+                for images in tqdm(loader):
+                    reverse_index = np.arange(255, -1, -1)
+                    images = images[:,:,reverse_index,:].to(device)
+                    project_latent = model(images, "project_latent")
+                    latent_codes_enc_flip.append(project_latent.cpu().numpy())
+                latent_codes_flip = np.concatenate(latent_codes_enc_flip, axis=0)
+                np.save(f"{args.inverted_npy.replace('inverted','flip_inverted')}", latent_codes_flip)
+                
+            latent_codes_flip = latent_codes_flip.reshape(len(latent_codes_flip), -1)
 
         latent_code_shape = latent_codes[0].shape
         print(f"latent_code_shape {latent_code_shape}")
@@ -189,10 +208,8 @@ if __name__ == "__main__":
         # flatten latent: Nx8x8x64 -> N x 8*8*64
         latent_codes = latent_codes.reshape(len(latent_codes), -1)
 
-
-    
         # get boundary
-        part = args.part
+        
 
         if os.path.isfile(args.boundary):
             print(f"{part} boundary exists!")
@@ -220,6 +237,7 @@ if __name__ == "__main__":
             positive_train = latent_codes[
                 part1_indexes[int(positive_len * testset_ratio) :]
             ]
+
             positive_val = latent_codes[
                 part1_indexes[: int(positive_len * testset_ratio)]
             ]
@@ -230,6 +248,19 @@ if __name__ == "__main__":
             negative_val = latent_codes[
                 part2_indexes[: int(negative_len * testset_ratio)]
             ]
+
+            if args.augmentation == 'flip':
+                positive_train = np.concatenate([
+                    positive_train, 
+                    latent_codes_flip[part2_indexes if part=='lr' else part1_indexes]
+                ], axis=0)
+                
+                negative_train = np.concatenate([
+                    negative_train, 
+                    latent_codes_flip[part1_indexes if part=='lr' else part2_indexes]
+                ], axis=0)
+
+
 
             # Training set.
             train_data = np.concatenate([positive_train, negative_train], axis=0)
@@ -252,20 +283,20 @@ if __name__ == "__main__":
             )
 
             print(
-                f"positive_train: {len(positive_train)}, negative_train:{len(negative_train)}, positive_val:{len(positive_val)}, negative_val:{len(negative_val)}"
+                f"positive_train: {len(positive_train)}, \
+                negative_train:{len(negative_train)}, \
+                positive_val:{len(positive_val)}, \
+                negative_val:{len(negative_val)}"
             )
 
             print(f"Training boundary. {datetime.datetime.now()}")
-
-            if args.svm_train_iter:
-                clf = svm.SVC(kernel="linear", max_iter=args.svm_train_iter)
-            else:
-                clf = svm.SVC(kernel="linear")
+            clf = svm.SVC(kernel="linear", max_iter=args.svm_train_iter)
             classifier = clf.fit(train_data, train_label)
             print(f"Finish training. {datetime.datetime.now()}")
 
             print(f"validate boundary.")
             val_prediction = classifier.predict(val_data)
+            
             correct_num = np.sum(val_label == val_prediction)
 
             print(
@@ -291,39 +322,42 @@ if __name__ == "__main__":
                 args.boundary,
             )
 
-        part1_loader = data.DataLoader(
-            dataset,
-            batch_size=args.batch,
-            sampler=Sampler_with_index(part1_indexes[:500]),
-        )
-        part1_loader = sample_data(part1_loader)
+        if True:
+            part1_loader = data.DataLoader(
+                dataset,
+                batch_size=args.batch,
+                sampler=Sampler_with_index(part1_indexes[:500]),
+            )
+            part1_loader = sample_data(part1_loader)
 
-        part2_loader = data.DataLoader(
-            dataset,
-            batch_size=args.batch,
-            sampler=Sampler_with_index(part2_indexes[:500]),
-        )
+            part2_loader = data.DataLoader(
+                dataset,
+                batch_size=args.batch,
+                sampler=Sampler_with_index(part2_indexes[:500]),
+            )
 
-        part2_loader = sample_data(part2_loader)
-        next(part2_loader)
-        part2_img = next(part2_loader).to(device)
+            part2_loader = sample_data(part2_loader)
+            # next(part2_loader)
+            part2_img = next(part2_loader).to(device)
 
-        # heavy makup
-        ref_p_x, ref_p_y, width, height = 0, 0, 8, 8
+            # heavy makup
+            # lw, lh = latent_code_shape
+            # ref_p_x, ref_p_y, width, height = 0, 0, lw, lh
 
-        mask = (ref_p_x, ref_p_y, width, height)
-        mask = torch.zeros(part2_img.shape[0], 64, 8, 8)
-        mask[:, :, ref_p_y : ref_p_y + height, ref_p_x : ref_p_x + width] = 1
+            # mask = (ref_p_x, ref_p_y, width, height)
+            mask = torch.zeros(part2_img.shape[0], 64, 8, 8)
+            # mask[:, :, ref_p_y : ref_p_y + height, ref_p_x : ref_p_x + width] = 1
+            mask[:, :, : ] = 1
 
-        part2_to_part1 = model(
-            part2_img, "transform_to_other_part", -boundary, mask=mask
-        )
+            part2_to_part1 = model(
+                part2_img, "transform_to_other_part", boundary, mask=mask
+            )
 
-        utils.save_image(
-            torch.cat([part2_img, part2_to_part1]),
-            f"{args.save_dir}/{part}/{model_name}_others_to_{part}.png",
-            nrow=args.batch,
-            normalize=True,
-            range=(-1, 1),
-        )
+            utils.save_image(
+                torch.cat([part2_img, part2_to_part1]),
+                f"{args.save_dir}/{part}/{model_name}_others_to_{part}_{args.augmentation}.png",
+                nrow=args.batch,
+                normalize=True,
+                range=(-1, 1),
+            )
 
