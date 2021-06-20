@@ -18,6 +18,9 @@ from torch.utils import data
 from torchvision import transforms, utils
 from training.model import Generator, Encoder
 from training.dataset import MultiResolutionDataset
+import albumentations as A
+from albumentations.pytorch import ToTensorV2
+
 from tqdm import tqdm
 from sklearn import svm
 import glob
@@ -93,7 +96,7 @@ class Model(nn.Module):
 
             transformed_images = []
 
-            for distance in range(-20, 21, 4):
+            for distance in range(-20, 21, 5):
                 modified_stylecode = fake_stylecode + distance * direction_vector
                 transformed_image, _ = self.g_ema(
                     modified_stylecode, input_is_stylecode=True
@@ -131,7 +134,7 @@ if __name__ == "__main__":
     
     os.makedirs(os.path.join(args.save_dir, part), exist_ok=True)
     args.inverted_npy = os.path.join(args.save_dir, f"{model_name}_inverted.npy")
-    args.boundary = os.path.join(args.save_dir, args.part, f"{model_name}_{part}_boundary_{args.augmentation}.npy")
+    args.boundary = os.path.join(args.save_dir, args.part, f"{model_name}_{part}_boundary_{args.augmentation}_{args.svm_train_iter}.npy")
     print(args)
 
     ckpt = torch.load(args.ckpt)
@@ -200,7 +203,43 @@ if __name__ == "__main__":
                 latent_codes_flip = np.concatenate(latent_codes_enc_flip, axis=0)
                 np.save(f"{args.inverted_npy.replace('inverted','flip_inverted')}", latent_codes_flip)
                 
-            latent_codes_flip = latent_codes_flip.reshape(len(latent_codes_flip), -1)
+            latent_codes_aug = latent_codes_flip.reshape(len(latent_codes_flip), -1)
+
+        if args.augmentation == 'aug':
+            if os.path.isfile(args.inverted_npy.replace('inverted','aug_inverted')):
+                print("aug_inverted_npy exists!")
+                latent_codes_aug = np.load(args.inverted_npy.replace('inverted','aug_inverted'))
+            else:
+                loader = data.DataLoader(
+                    dataset,
+                    batch_size=args.batch,
+                    sampler=data_sampler(dataset, shuffle=False),
+                    num_workers=args.num_workers,
+                    pin_memory=True,
+                )
+                transform = A.Compose([
+                    A.RandomSizedCrop(width=256, height=256, min_max_height=[200, 256], w2h_ratio=1.0),
+                    # ToTensorV2()
+                ])
+
+                latent_codes_enc_aug = []
+                for images in tqdm(loader):
+                    for idx in range(images.shape[0]):
+                        images[idx] = torch.from_numpy(transform(image=images[idx].numpy().transpose(1, 2, 0))['image'].transpose(2, 0, 1))
+
+                    images = images.to(device)
+                    project_latent = model(images, "project_latent")
+                    latent_codes_enc_aug.append(project_latent.cpu().numpy())
+                latent_codes_aug = np.concatenate(latent_codes_enc_aug, axis=0)
+                
+                np.save(f"{args.inverted_npy.replace('inverted','aug_inverted')}", latent_codes_aug)
+            
+            if latent_codes_aug.shape[-1] == 3:
+                latent_codes_aug == torch.from_numpy(latent_codes_aug.numpy().transpose(2, 0, 1))
+
+            latent_codes_aug = latent_codes_aug.reshape(len(latent_codes_aug), -1)
+
+                
 
         latent_code_shape = latent_codes[0].shape
         print(f"latent_code_shape {latent_code_shape}")
@@ -249,15 +288,15 @@ if __name__ == "__main__":
                 part2_indexes[: int(negative_len * testset_ratio)]
             ]
 
-            if args.augmentation == 'flip':
+            if args.augmentation != 'default':
                 positive_train = np.concatenate([
                     positive_train, 
-                    latent_codes_flip[part2_indexes if part=='lr' else part1_indexes]
+                    latent_codes_aug[part2_indexes if part=='lr' and args.augmentation=='flip' else part1_indexes]
                 ], axis=0)
                 
                 negative_train = np.concatenate([
                     negative_train, 
-                    latent_codes_flip[part1_indexes if part=='lr' else part2_indexes]
+                    latent_codes_aug[part1_indexes if part=='lr' and args.augmentation=='flip' else part2_indexes]
                 ], axis=0)
 
 
@@ -329,7 +368,7 @@ if __name__ == "__main__":
                 sampler=Sampler_with_index(part1_indexes[:500]),
             )
             part1_loader = sample_data(part1_loader)
-
+            part1_img = next(part1_loader).to(device)
             part2_loader = data.DataLoader(
                 dataset,
                 batch_size=args.batch,
@@ -355,7 +394,19 @@ if __name__ == "__main__":
 
             utils.save_image(
                 torch.cat([part2_img, part2_to_part1]),
-                f"{args.save_dir}/{part}/{model_name}_others_to_{part}_{args.augmentation}.png",
+                f"{args.save_dir}/{part}/{model_name}_others_to_{part}_{args.augmentation}_{args.svm_train_iter}_1.png",
+                nrow=args.batch,
+                normalize=True,
+                range=(-1, 1),
+            )
+
+            part1_to_part2 = model(
+                part1_img, "transform_to_other_part", boundary, mask=mask
+            )
+
+            utils.save_image(
+                torch.cat([part1_img, part1_to_part2]),
+                f"{args.save_dir}/{part}/{model_name}_others_to_{part}_{args.augmentation}_{args.svm_train_iter}_2.png",
                 nrow=args.batch,
                 normalize=True,
                 range=(-1, 1),
