@@ -38,7 +38,7 @@ app.config["MAX_CONTENT_LENGTH"] = 10000000  # allow 10 MB post
 
 # for 1 gpu only.
 class Model(nn.Module):
-    def __init__(self):
+    def __init__(self, train_args):
         super(Model, self).__init__()
         self.g_ema = Generator(
             train_args.size,
@@ -76,11 +76,11 @@ class Model(nn.Module):
 
         return mixed
 
-    def forward_direction(self, image, distance, direction_vector=None):
+    def forward_direction(self, image, direction_vectors=None):
         get_cuda_device = image.get_device()
         fake_stylecode = self.e_ema(image)
-        direction_vector = direction_vector.unsqueeze(0).to(get_cuda_device)
-        modified_stylecode = fake_stylecode + distance * direction_vector
+        direction_vectors = torch.sum(direction_vectors, keepdim=True, dim=0).to(get_cuda_device)
+        modified_stylecode = fake_stylecode + direction_vectors
         transformed_image, _ = self.g_ema(
             modified_stylecode, 
             input_is_stylecode=True
@@ -96,7 +96,7 @@ def index():
     image_paths = []
     return render_template(
         "index.html",
-        canvas_size=train_args.size,
+        canvas_size=canvas_size,
         base_path=base_path,
         image_paths=list(os.walk(base_path)),
     )
@@ -121,7 +121,7 @@ def my_morphed_images(
 
     for ref in references:
         ref_path = ref.split('?')[0] if 'demo' in ref else base_path + ref
-        reference_image =  TF.to_tensor(Image.open(ref_path).resize((train_args.size, train_args.size)))
+        reference_image =  TF.to_tensor(Image.open(ref_path).resize((canvas_size, canvas_size)))
         if reference_image.ndim == 2 :
             reference_image = reference_image.unsqueeze(0)
         if reference_image.shape[0] == 1 :
@@ -132,13 +132,13 @@ def my_morphed_images(
 
     original_image = TF.to_tensor(original_image).unsqueeze(0)
     original_image = F.interpolate(
-        original_image, size=(train_args.size, train_args.size)
+        original_image, size=(canvas_size, canvas_size)
     )
     original_image = (original_image - 0.5) * 2
 
     reference_images = torch.stack(reference_images)
     reference_images = F.interpolate(
-        reference_images, size=(train_args.size, train_args.size)
+        reference_images, size=(canvas_size, canvas_size)
     )
     reference_images = (reference_images - 0.5) * 2
 
@@ -155,7 +155,7 @@ def my_morphed_images(
         masks.to(device),
     )
 
-    mixed = model(original_image, reference_images, masks, shift_values).cpu()
+    mixed = model1(original_image, reference_images, masks, shift_values).cpu()
     mixed = np.asarray(
         np.clip(mixed * 127.5 + 127.5, 0.0, 255.0), dtype=np.uint8
     ).transpose(
@@ -165,12 +165,12 @@ def my_morphed_images(
     return mixed
 
 @torch.no_grad()
-def direction_change(original, distance, direction, save_dir=None):
+def single_image_change(original, distances, directions, save_dir=None):
     original_path = original.split('?')[0] if 'demo' in original else base_path + original
     original_image = Image.open(original_path)
     original_image = TF.to_tensor(original_image).unsqueeze(0)
     original_image = F.interpolate(
-        original_image, size=(train_args.size, train_args.size)
+        original_image, size=(canvas_size, canvas_size)
     )
     original_image = (original_image - 0.5) * 2
 
@@ -178,10 +178,10 @@ def direction_change(original, distance, direction, save_dir=None):
         original_image = original_image.repeat(1, 3, 1, 1)
         
  
+    directions = torch.Tensor(distances).reshape(-1, 1, 1, 1) * directions
+    original_image, directions = original_image.to(device), directions.to(device)
 
-    original_image, direction = original_image.to(device), direction.to(device)
-
-    mixed = model.forward_direction(original_image, distance, direction).cpu()
+    mixed = model2.forward_direction(original_image, directions).cpu()
     mixed = np.asarray(
         np.clip(mixed * 127.5 + 127.5, 0.0, 255.0), dtype=np.uint8
     ).transpose(
@@ -200,18 +200,17 @@ def post():
 
         if request.json['type'] == 'original':
             original = request.json["original"]
-            distance = request.json["distance"]
-           
-            generated_images = direction_change(
+            distances = request.json["distance"]
+            
+            
+            generated_images = single_image_change(
                 original,
-                distance,
-                direction,
+                distances,
+                directions,
                 save_dir=save_dir,
             )
-            paths = []
 
-            
-            path = f"{save_dir}/origin_{distance}.png"
+            path = f"{save_dir}/origin_{distances[0]}_{distances[1]}.png"
             Image.fromarray(generated_images[0]).save(path)
             path += "?{}".format(secrets.token_urlsafe(16))
             
@@ -283,8 +282,10 @@ if __name__ == "__main__":
         choices=["celeba_hq", "afhq", "lsun/church_outdoor", "lsun/car", "sketch"],
     )
     parser.add_argument("--interpolation_step", type=int, default=16)
-    parser.add_argument("--ckpt", type=str, required=True)
-    parser.add_argument("--boundary", type=str, required=True)
+    parser.add_argument("--ckpt1", type=str, required=True)
+    parser.add_argument("--ckpt2", type=str)
+    parser.add_argument("--boundary1", type=str, required=True)
+    parser.add_argument("--boundary2", type=str, required=True)
     parser.add_argument(
         "--MAX_CONTENT_LENGTH", type=int, default=10000000
     )  # allow maximum 10 MB POST
@@ -292,21 +293,30 @@ if __name__ == "__main__":
 
     device = "cuda"
     base_path = f"demo/static/components/img/{args.dataset}/"
-    ckpt = torch.load(args.ckpt)
+    ckpt1 = torch.load(args.ckpt1)
+    canvas_size = 256
 
-    train_args = ckpt["train_args"]
-    print("train_args: ", train_args)
-
-    print('Import Model...')
-    model = Model().to(device)
-    model.g_ema.load_state_dict(ckpt["g_ema"])
-    model.e_ema.load_state_dict(ckpt["e_ema"])
-    model.eval()
+    print('Import Model for Synthesis...1')
+    model1 = Model(ckpt1["train_args"]).to(device)
+    model1.g_ema.load_state_dict(ckpt1["g_ema"])
+    model1.e_ema.load_state_dict(ckpt1["e_ema"])
+    model1.eval()
+    print('Success.')
+    
+    
+    ckpt2 = torch.load(args.ckpt2)
+    print('Import Model for Editing...2')
+    model2 = Model(ckpt2["train_args"]).to(device)
+    model2.g_ema.load_state_dict(ckpt2["g_ema"])
+    model2.e_ema.load_state_dict(ckpt2["e_ema"])
+    model2.eval()
     print('Success.')
     
     print('Import Boundary...')
-    boundary_infos = torch.load(args.boundary)
-    direction = -boundary_infos["boundary"]
+    boundary_infos1 = torch.load(args.boundary1)
+    boundary_infos2 = torch.load(args.boundary2)
+    directions = torch.Tensor(np.stack([-boundary_infos1["boundary"], boundary_infos2["boundary"]]))
+    
     print('Success.')
 
     app.debug = True
