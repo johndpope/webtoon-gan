@@ -24,10 +24,22 @@
                     <div id="p5-original-wrapper" class="p5-wrapper">
                         <div id="p5-original" class="p5"></div>
                     </div>
-                    <!-- <div id="result-control" class="row">
-                        <input id="ex_dir" data-slider-id='directionSlider' type="text" data-slider-min="-20" data-slider-max="20"
-                            data-slider-step="5" data-slider-value="0" />
-                    </div> -->
+                    <div id="sketch-control" class="row">
+                        <a class="btn" data-toggle="collapse" href="#collapseExample" role="button" aria-expanded="false" aria-controls="collapseExample">
+                          edit
+                        </a>
+                    </div>
+                      <div class="collapse" id="collapseExample">
+                        <div class="card card-body">
+                            <label for="customRange2">Left | Right</label>
+                            <input id='pose_lr' type="text" data-slider-min="-15" data-slider-max="15"
+                            data-slider-step="3" data-slider-value="0" />
+                            <label for="customRange2">Expressionless | Smile</label>
+                            <input id='facial_smile' type="text" data-slider-min="-15" data-slider-max="15"
+                            data-slider-step="3" data-slider-value="0" />
+                        </div>
+                      </div>
+                    
                 </div>
 
                 <div class="col-md-3">

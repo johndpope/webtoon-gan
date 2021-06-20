@@ -213,8 +213,12 @@ function OriginalNameSpace() {
 
 
         s.clear_canvas = function () {
-            // $('#ex_dir').slider('refresh')
-            // $('#ex_dir').slider('disable')
+            $('#pose_lr').slider('refresh')
+            $('#facial_smile').slider('refresh')
+            $('#pose_lr').slider('disable')
+            
+            
+            $('#facial_smile').slider('disable')
             angle = 0;
             s.body = null;
 
@@ -275,13 +279,14 @@ function updateOrigin(){
     $.ajax({
         type: "POST",
         url: "/post",    
-        data: JSON.stringify({ "type" : "original", "id": id, "original": original_image, "distance": angle}),
+        data: JSON.stringify({ "type" : "original", "id": id, "original": original_image, "distance": [parseInt($("#pose_lr").val()), parseInt($("#facial_smile").val())]}),
         dataType: "json",
         contentType: "application/json",
     }).done(function (data, textStatus, jqXHR) {
         let url = data['result'];
         p5_input_original.updateImage(url)
         original_choose = url
+        
     });
 }
 
@@ -417,7 +422,8 @@ $(function () {
     });
 
     $("#class-picker-submit-original").click(function () {
-        angle = 0;
+        $('#pose_lr').slider('refresh')
+        $('#facial_smile').slider('refresh')
         selected_class =  $("#class-picker option:selected").attr('data-img-src');
         
         p5_input_original.updateImage(selected_class);
@@ -432,9 +438,13 @@ $(function () {
         $(".palette-item.selected").removeClass('selected');
         $(this).addClass('selected');
     });
-    $('#ex_dir').slider()
-    $('#ex_dir').slider('disable');
-    $('#ex_dir').change(()=>updateOrigin())
+    $('#pose_lr').slider()
+    $('#pose_lr').slider('disable')
+    $('#facial_smile').slider()
+    $('#facial_smile').slider('disable');
+    $('#pose_lr').change(()=>updateOrigin())
+    $('#facial_smile').change(()=>updateOrigin())
+
     $('#ex0').slider();
 
     $('#ex1').slider({
@@ -557,5 +567,9 @@ $(function () {
         link.href = image;
         link.click();
     });
+    $(function () {
+        $('[data-toggle="popover"]').popover()
+      });
+    
 
 })
