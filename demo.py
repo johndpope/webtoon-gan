@@ -27,6 +27,10 @@ import torchvision.transforms.functional as TF
 from torchvision import transforms
 import io
 
+### 
+import cv2
+from tensorflow.keras.models import load_model
+
 app = Flask(
     __name__,
     template_folder="demo/templates",
@@ -266,9 +270,28 @@ def post():
             directory = request.json["directory"]
             file_name = request.json["file_name"]
             if directory == 'etc' : directory = ""
-            print(file_name)
-            with open(os.path.join("demo/static/components/img/sketch", directory, file_name), "wb") as f:
-                f.write(bytearray(base64.b64decode(cropped_image)))
+            im =  np.array(Image.open(io.BytesIO(base64.b64decode(cropped_image))))
+            im = cv2.cvtColor(im, cv2.COLOR_BGR2GRAY)
+
+            # perform brightness correction in tiles
+            clahe = cv2.createCLAHE(clipLimit=2.0, tileGridSize=(16, 16))
+            im = clahe.apply(im)
+            R = 8
+            im_predict = cv2.resize(im, (im.shape[1] // R * R, im.shape[0] // R * R), interpolation=cv2.INTER_AREA)
+            im_predict = np.reshape(im_predict, (1, im_predict.shape[0], im_predict.shape[1], 1))
+            # im_predict = ((im_predict/255)*220)/255
+            im_predict = im_predict.astype(np.float32) * 0.003383
+
+            result = sketch_model.predict(im_predict, batch_size=1)[0]
+
+            im_res = (result - np.mean(result) + 1.) * 255
+            im_res = cv2.resize(im_res, (im.shape[1], im.shape[0]))
+
+            cv2.imwrite(os.path.join("demo/static/components/img/sketch", directory, file_name), im_res)
+
+            
+            
+
             return  flask.jsonify(result=['end'])
     else:
         return redirect(url_for("index"))
@@ -310,6 +333,10 @@ if __name__ == "__main__":
     model2.g_ema.load_state_dict(ckpt2["g_ema"])
     model2.e_ema.load_state_dict(ckpt2["e_ema"])
     model2.eval()
+    print('Success.')
+
+    print('Import Sketch Model')
+    sketch_model = load_model('sketch_model.h5', compile=False)
     print('Success.')
     
     print('Import Boundary...')

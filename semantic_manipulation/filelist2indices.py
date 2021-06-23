@@ -19,7 +19,7 @@ if __name__ == '__main__':
         neg_file_list, 
         pos_file_list, 
         # front
-        ], axis=0)
+        ], axis=0).astype(str)
 
     target = [1 for i in range(len(neg_file_list))] + [-1 for i in range(len(pos_file_list))] 
 
@@ -31,7 +31,7 @@ if __name__ == '__main__':
     target_df = pd.DataFrame({
         'file' : idx,
         'target' : target
-    }).set_index('file')
+    }).set_index('file') 
 
     print(target_df.head(10))
 
