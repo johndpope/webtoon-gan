@@ -3,79 +3,102 @@
 */
 
 body {
-  background: #f0f0f0; }
+  background: #f0f0f0;
+}
 
 #main-column {
-  background: #fff; }
+  background: #fff;
+}
 
 #title {
-  text-align: center; }
-  #title h2 {
-    margin: 10px auto 30px; }
-  #title h4 {
-    font-size: large;
-    margin: 20px auto 10px; }
+  text-align: center;
+}
+#title h2 {
+  margin: 10px auto 30px;
+}
+#title h4 {
+  font-size: large;
+  margin: 20px auto 10px;
+}
 
 #base-class {
-  padding: 10px; }
+  padding: 10px;
+}
 
 #main-ui {
   margin: 20px 0 10px;
-  text-align: center; }
-  #main-ui p {
-    margin-bottom: 5px; }
-  #main-ui #sketch-control {
-    margin: 5px 0 0;
-    text-align: center; }
-    #main-ui #sketch-control button {
-      margin: 0 auto;
-      font-size: smaller; }
-  #main-ui #result-control {
-    text-align: center; }
-    #main-ui #result-control .slider {
-      margin: 10px auto 0; }
-  #main-ui #main-ui-middle {
-    padding: 0; }
-    #main-ui #main-ui-middle button {
-      width: max-content;
-      font-size: large; }
-  #main-ui .p5-wrapper {
-    position: relative;
-    width: 100%;
-    border: solid 1px #ccc; }
-  #main-ui .p5-wrapper:before {
-    content: "";
-    display: block;
-    padding-top: 100%; }
-  #main-ui .p5 {
-    position: absolute;
-    top: 0;
-    left: 0;
-    bottom: 0;
-    right: 0; }
+  text-align: center;
+}
+#main-ui p {
+  margin-bottom: 5px;
+}
+#main-ui #sketch-control {
+  margin: 5px 0 0;
+  text-align: center;
+}
+#main-ui #sketch-control button {
+  margin: 0 auto;
+  font-size: smaller;
+}
+#main-ui #result-control {
+  text-align: center;
+}
+#main-ui #result-control .slider {
+  margin: 10px auto 0;
+}
+#main-ui #main-ui-middle {
+  padding: 0;
+}
+#main-ui #main-ui-middle button {
+  width: max-content;
+  font-size: large;
+}
+#main-ui .p5-wrapper {
+  position: relative;
+  width: 100%;
+  border: solid 1px #ccc;
+}
+#main-ui .p5-wrapper:before {
+  content: "";
+  display: block;
+  padding-top: 100%;
+}
+#main-ui .p5 {
+  position: absolute;
+  top: 0;
+  left: 0;
+  bottom: 0;
+  right: 0;
+}
 
 #palette {
-  margin: 10px 0 10px; }
-  #palette #palette-body {
-    min-height: 58px;
-    margin: 0;
-    padding: 0;
-    overflow: auto;
-    list-style-image: none;
-    list-style-position: outside;
-    list-style-type: none; }
+  margin: 10px 0 10px;
+}
+#palette #palette-body {
+  height: 80px;
+  margin: 0;
+  padding: 0;
+  overflow: auto;
+  list-style-image: none;
+  list-style-position: outside;
+  list-style-type: none;
+}
 #palette #palette-body .palette-item {
   float: left;
   margin-right: 4px;
   width: 90px;
-  height: 58px;
-  opacity: 0.3; }
-  #palette #palette-body .palette-item img {
-    width: 54px;
-    height: 54px;
-    margin: 2px; }
-  #palette #palette-body .palette-item.selected {
-    opacity: 1.0; }
+  height: 75px;
+  opacity: 0.3;
+  outline: solid;
+}
+#palette #palette-body .palette-item img {
+  width: 75px;
+  height: 75px;
+  margin: 2px;
+}
+#palette #palette-body .palette-item.selected {
+  opacity: 1;
+}
 
 /* #class-list {
   margin: 20px 0 30px; }
@@ -89,8 +112,9 @@ body {
 */
 
 #class-list .image_picker_selector img {
-width: 75px;
-height: 75px; }
+  width: 75px;
+  height: 75px;
+}
 
 /* #class-list .image_picker_selector li { 
 margin: 0px 4px 4px 0px !important; }
@@ -102,42 +126,41 @@ background: #0088cc; } */
 
 .p5Canvas {
   width: 100% !important;
-  height: 100% !important; }
-
-
-label.cabinet{
-	display: block;
-	cursor: pointer;
+  height: 100% !important;
 }
 
-label.cabinet input.file{
-	position: relative;
-	height: 100%;
-	width: auto;
-	opacity: 0;
-	-moz-opacity: 0;
+label.cabinet {
+  display: block;
+  cursor: pointer;
+}
+
+label.cabinet input.file {
+  position: relative;
+  height: 100%;
+  width: auto;
+  opacity: 0;
+  -moz-opacity: 0;
   -ms-filter: "progid:DXImageTransform.Microsoft.Alpha(Opacity=0)";
   filter: alpha(opacity=0);
-
 
   -moz-opacity: 0;
 
   -khtml-opacity: 0;
   opacity: 0;
-  margin-top:-30px;
+  margin-top: -30px;
 }
 
-#item-img-output{
-  width:75px;
-  height:75px;
+#item-img-output {
+  width: 75px;
+  height: 75px;
 }
 
-#upload-demo{
-	width: 350px;
-	height: 350px;
-  padding:20px;
+#upload-demo {
+  width: 350px;
+  height: 350px;
+  padding: 20px;
 }
 
-.modal-body{
+.modal-body {
   margin: auto;
 }
