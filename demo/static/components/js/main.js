@@ -361,7 +361,7 @@ function updateOrigin() {
 function updateResult() {
   disableUI();
   var canvas_reference = $("#p5-reference canvas").slice(1);
-  console.log(canvas_reference);
+  
   var data_reference = [];
 
   for (var canvas_i = 0; canvas_i < max_colors; canvas_i++) {
@@ -371,6 +371,11 @@ function updateResult() {
         .replace(/data:image\/png;base64,/, "")
     );
   }
+  var palettes = [] 
+
+  for (var canvas_i = 0; canvas_i < max_colors; canvas_i++) {
+    palettes.push(palette[0])
+  }
 
   $.ajax({
     type: "POST",
@@ -379,7 +384,7 @@ function updateResult() {
       type: "generate",
       id: id,
       original: original_choose,
-      references: palette,
+      references: palettes,
       data_reference: data_reference,
       shift_original: [p5_input_original.r_x, p5_input_original.r_y],
       colors: colors,
@@ -509,6 +514,7 @@ $(function () {
     mask_idx = 0;
     mask_selected_index = 0;
     selected_class = $("#class-picker option:selected").attr("data-img-src");
+    palette.push(selected_class)
     add_new_mask(mask_idx);
 
     p5_input_reference.updateImage(selected_class);
