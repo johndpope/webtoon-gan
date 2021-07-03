@@ -3,74 +3,88 @@
  -->
 
 {% extends "layout.html" %} {% block content %}
+<nav class="navbar shadow navbar-dark bg-dark">
+  <a class="navbar-brand" href="#">
+    <img
+      src="/demo/static/components/img/w.svg"
+      width="30"
+      height="30"
+      class="d-inline-block align-top"
+      alt=""
+    />
 
-<div class="container" style="max-width: 1900px">
-  <div class="row justify-content-md-center">
-    <div class="col-md-10" id="main-column">
+    Interactive Webtoon Editing System
+  </a>
+</nav>
+
+<div class="main container-fluid bg-dark">
+  <div class="row justify-content-md-center bg-dark">
+    <div class="col-md-12 bg-dark" id="main-column">
       <!-- title -->
-      <div class="row" id="title">
-        <h2>Interactive Webtoon Editing System</h2>
-      </div>
 
       <!-- main UI -->
-      <div class="row justify-content-md-center" id="main-ui">
+      <div class="row justify-content-md-center bg-dark" id="main-ui">
         <div class="col-md-3">
-          <p>Original Image / Canvas Move</p>
-          <div id="p5-original-wrapper" class="p5-wrapper">
-            <div id="p5-original" class="p5"></div>
-          </div>
-          <div id="sketch-control" class="row">
-            <a
-              class="btn"
-              data-toggle="collapse"
-              href="#collapseExample"
-              role="button"
-              aria-expanded="false"
-              aria-controls="collapseExample"
-            >
-              edit
-            </a>
-          </div>
-          <div class="collapse" id="collapseExample">
-            <div class="card card-body">
-              <label for="customRange2">Left | Right</label>
-              <input
-                id="pose_lr"
-                type="text"
-                data-slider-min="-15"
-                data-slider-max="15"
-                data-slider-step="3"
-                data-slider-value="0"
-              />
-              <!-- <label for="customRange2">Expressionless | Smile</label>
-              <input
-                id="facial_smile"
-                type="text"
-                data-slider-min="-15"
-                data-slider-max="15"
-                data-slider-step="3"
-                data-slider-value="0"
-              /> -->
+          <div class="card shadow text-white bg-dark">
+            <div class="card-header">Original Image / Canvas Move</div>
+            <div class="card-body">
+              <div id="p5-original-wrapper" class="p5-wrapper">
+                <div id="p5-original" class="p5"></div>
+              </div>
+            </div>
+            <div class="card-footer">
+              <div id="sketch-control" class="row">
+                <button
+                  class="btn btn-secondary"
+                  type="button"
+                  data-toggle="collapse"
+                  href="#collapseExample"
+                  aria-expanded="false"
+                  aria-controls="collapseExample"
+                >
+                  Edit
+                </button>
+              </div>
+              <div class="collapse" id="collapseExample">
+                <div class="card">
+                  <div class="card-body">
+                    <input
+                      id="pose_lr"
+                      type="text"
+                      data-slider-min="-15"
+                      data-slider-max="15"
+                      data-slider-step="3"
+                      data-slider-value="0"
+                    />
+                  </div>
+                </div>
+              </div>
             </div>
           </div>
         </div>
 
         <div class="col-md-3">
-          <p>Reference Images / Canvas Draw</p>
-          <div id="p5-reference-wrapper" class="p5-wrapper">
-            <div id="p5-reference" class="p5"></div>
-          </div>
-          <div id="sketch-control" class="row">
-            <button class="btn" id="add-mask" disabled>Add Mask</button>
-            <button class="btn btn-danger" id="sketch-clear" disabled>
-              clear canvas and palette
-            </button>
+          <div class="card shadow text-white bg-dark">
+            <div class="card-header">Reference Images / Canvas Draw</div>
+            <div class="card-body">
+              <div id="p5-reference-wrapper" class="p5-wrapper">
+                <div id="p5-reference" class="p5"></div>
+              </div>
+            </div>
+            <div class="card-footer">
+              <div id="sketch-control" class="row">
+                <button class="btn btn-danger" id="sketch-clear" disabled>
+                  clear canvas and palette
+                </button>
+              </div>
+            </div>
           </div>
         </div>
+
         <div class="col-md-1 my-auto" id="main-ui-middle">
           <button
             type="submit"
-            class="form-control btn btn-danger"
+            class="shadow form-control btn btn-danger"
             id="main-ui-submit"
             disabled
           >
@@ -79,89 +93,79 @@
         </div>
 
         <div class="col-md-3">
-          <p>Generated Result</p>
-          <div id="p5-right-wrapper" class="p5-wrapper">
-            <div id="p5-right" class="p5"></div>
+          <div class="card shadow text-white bg-dark">
+            <div class="card-header">Generated Result</div>
+            <div class="card-body">
+              <div id="p5-right-wrapper" class="p5-wrapper">
+                <div id="p5-right" class="p5"></div>
+              </div>
+            </div>
+            <div class="card-footer">
+              <div id="result-control" class="row">
+                <input
+                  id="ex1"
+                  data-slider-id="ex1Slider"
+                  type="text"
+                  data-slider-min="0"
+                  data-slider-max="15"
+                  data-slider-step="1"
+                  data-slider-value="15"
+                />
+              </div>
+              <button
+                id="download-button"
+                type="button"
+                class="btn btn-secondary btn-sm"
+              >
+                Download
+              </button>
+            </div>
           </div>
-          <div id="result-control" class="row">
-            <input
-              id="ex1"
-              data-slider-id="ex1Slider"
-              type="text"
-              data-slider-min="0"
-              data-slider-max="15"
-              data-slider-step="1"
-              data-slider-value="15"
-            />
-          </div>
-          <button
-            id="download-button"
-            type="button"
-            class="btn btn-secondary btn-sm"
-          >
-            Download
-          </button>
         </div>
       </div>
       <!-- palette -->
-      <div class="row justify-content-md-center" id="palette">
-        <div class="col-md-11">
-          <h4>Layer</h4>
+      <div
+        class="row justify-content-md-center text-white bg-dark"
+        id="palette"
+      >
+        <div class="col-md-10">
+          <button class="btn btn-primary" id="add-mask" disabled>+</button>
           <ul class="row" id="palette-body">
-            <li
-              class="palette-item selected"
+            <div
+              class="card palette-item selected"
               id="palette-eraser"
               data-class="-1"
               style="background-color: #000"
             >
               <img src="/demo/static/components/img/eraser.png" />
-            </li>
+            </div>
           </ul>
         </div>
       </div>
 
-      <!-- all class list -->
-      <div class="row justify-content-md-center" id="class-list">
-        <div class="col-md-11">
-          <h4>Sample Images</h4>
-          <select
-            class="image-picker show-html form-control col-md-6"
-            id="class-picker"
-          ></select>
-        </div>
+      <!-- Button trigger modal -->
+      <div class="row justify-content-md-center text-white bg-dark">
+        <button
+          type="button"
+          class="btn btn-info"
+          data-toggle="modal"
+          data-target="#exampleModal"
+        >
+          Import Image
+        </button>
       </div>
-
-      <div class="container">
-        <div class="row">
-          <div class="col-xs-12">
-            <label class="cabinet center-block">
-              <figure>
-                <div class="thumbnail">
-                  <img src="" class="img-responsive" id="item-img-output" />
-                </div>
-                <input
-                  type="file"
-                  class="item-img file center-block"
-                  name="file_photo"
-                />
-              </figure>
-            </label>
-          </div>
-        </div>
-      </div>
-
+      <!-- Modal -->
       <div
-        class="modal fade bd-example-modal-lg"
-        id="cropImagePop"
+        class="modal fade"
+        id="exampleModal"
         tabindex="-1"
-        role="dialog"
-        aria-labelledby="myModalLabel"
+        aria-labelledby="exampleModalLabel"
         aria-hidden="true"
       >
-        <div class="modal-dialog modal-lg">
-          <div class="modal-content">
-            <div class="modal-header">
-              <h4 class="modal-title" id="myModalLabel">Edit Photo</h4>
+        <div class="modal-dialog bg-dark text-white modal-xl">
+          <div class="modal-content bg-dark">
+            <div class="modal-header bg-dark">
+              <h5 class="modal-title" id="exampleModalLabel">Image Search</h5>
               <button
                 type="button"
                 class="close"
@@ -172,21 +176,90 @@
               </button>
             </div>
             <div class="modal-body">
-              <select id="upload-select" class="custom-select"></select>
-              <div id="upload-demo" class="text-center"></div>
-            </div>
-            <div class="modal-footer">
-              <button
-                type="button"
-                class="btn btn-default"
-                data-dismiss="modal"
+              <div
+                class="row justify-content-md-center text-white bg-dark"
+                id="class-list"
               >
-                Close
-              </button>
-              <button type="button" id="cropImageBtn" class="btn btn-primary">
-                Crop
-              </button>
+                <div class="col-md-10">
+                  <select
+                    class="image-picker show-html form-control col-md-6"
+                    id="class-picker"
+                  ></select>
+                </div>
+
+                <div class="col-md-10 bg-dark">
+                  <label class="cabinet center-block">
+                    <figure>
+                      <div class="thumbnail">
+                        <img
+                          src="/demo/static/components/img/face-detection.png"
+                          class="img-responsive"
+                          id="item-img-output"
+                        />
+                      </div>
+                      <input
+                        type="file"
+                        class="item-img file center-block"
+                        name="file_photo"
+                      />
+                    </figure>
+                  </label>
+                </div>
+              </div>
             </div>
+            <div
+              class="modal fade bd-example-modal-lg"
+              id="cropImagePop"
+              tabindex="-1"
+              role="dialog"
+              aria-labelledby="myModalLabel"
+              aria-hidden="true"
+            >
+              <div class="modal-dialog bg-dark modal-lg">
+                <div class="modal-content bg-dark">
+                  <div class="modal-header">
+                    <h4 class="modal-title" id="myModalLabel">Edit Photo</h4>
+                    <button
+                      type="button"
+                      class="close"
+                      data-dismiss="modal"
+                      aria-label="Close"
+                    >
+                      <span aria-hidden="true">&times;</span>
+                    </button>
+                  </div>
+                  <div class="modal-body">
+                    <select id="upload-select" class="custom-select"></select>
+                    <div id="upload-demo" class="text-center"></div>
+                  </div>
+                  <div class="modal-footer">
+                    <button
+                      type="button"
+                      class="btn btn-secondary"
+                      data-dismiss="modal"
+                    >
+                      Close
+                    </button>
+                    <button
+                      type="button"
+                      id="cropImageBtn"
+                      class="btn btn-primary"
+                    >
+                      Crop
+                    </button>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div class="modal-footer">
+            <button
+              type="button"
+              class="btn btn-secondary"
+              data-dismiss="modal"
+            >
+              Close
+            </button>
           </div>
         </div>
       </div>
