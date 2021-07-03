@@ -441,6 +441,7 @@ $(function () {
     );
 
     for (var i = 0; i < files.length; i++) {
+      console.log(files[i]);
       var image_name = files[i];
       let image_path = (dir_path == "etc" ? "" : dir_path + "/") + image_name;
       $(`#${dir_name}`).append(
@@ -478,7 +479,7 @@ $(function () {
 
   function add_new_mask(idx) {
     $("#palette-body").append(
-      '<li class="palette-item palette-item-class" id="palette-' +
+      '<div class="card md-3 palette-item palette-item-class" id="palette-' +
         idx +
         '"' +
         '" style="background-color: ' +
@@ -487,7 +488,7 @@ $(function () {
     );
 
     $("#palette-" + idx).append(
-      `<div id = "${"#palette-" + idx + "-mask"}" />`
+      `<div class='card-img' id = "${"#palette-" + idx + "-mask"}" />`
     );
     mask_thumnail = new p5(MaskNameSpace(idx), "#palette-" + idx + "-mask");
     $(".palette-item.selected").removeClass("selected");
@@ -553,9 +554,6 @@ $(function () {
   p5_output = new p5(generateOutputNameSpace(), "p5-right");
 
   // Image Upload
-
-  $("#item-img-output").attr("src", "/demo/static/components/img/add.png");
-
   var $uploadCrop, tempFilename, rawImg, imageId, file_name;
 
   function readFile(input) {
@@ -643,4 +641,8 @@ $(function () {
   $(function () {
     $('[data-toggle="popover"]').popover();
   });
+});
+
+$("#myModal").on("shown.bs.modal", function () {
+  $("#myInput").trigger("focus");
 });
