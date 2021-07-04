@@ -267,7 +267,7 @@ function OriginalNameSpace() {
 
     s.clear_canvas = function () {
       $("#pose_lr").slider("refresh");
-      $("#pose_lr").slider("disable");
+      // $("#pose_lr").slider("disable");
       s.yaw_angle = 0;
       s.body = null;
 
@@ -347,7 +347,7 @@ function updateOrigin() {
       type: "original",
       id: id,
       original: original_image,
-      distance: [parseInt($("#pose_lr").val())],
+      distance: [-parseInt($("#pose_lr").val()), 0],
     }),
     dataType: "json",
     contentType: "application/json",
@@ -541,7 +541,7 @@ $(function () {
     $(this).addClass("selected");
   });
   $("#pose_lr").slider();
-  $("#pose_lr").slider("disable");
+  // $("#pose_lr").slider("disable");
   $("#pose_lr").change(() => updateOrigin());
 
   $("#ex0").slider();
