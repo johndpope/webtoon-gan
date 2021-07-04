@@ -168,6 +168,10 @@ function ReferenceNameSpace() {
       s.body = null;
     };
 
+    s.clear_mask = function (idx) {
+      s.mask[idx].clear();
+    };
+
     s.updateImage = function (url) {
       s.body = s.loadImage(url);
     };
@@ -333,6 +337,8 @@ function MaskNameSpace(idx) {
     };
 
     s.draw = function () {
+      s.clear();
+      s.background("white");
       s.body = p5_input_reference.mask[s.idx];
       s.image(s.body, 0, 0, mask_thumnail_size, mask_thumnail_size);
     };
@@ -361,7 +367,7 @@ function updateOrigin() {
 function updateResult() {
   disableUI();
   var canvas_reference = $("#p5-reference canvas").slice(1);
-  
+
   var data_reference = [];
 
   for (var canvas_i = 0; canvas_i < max_colors; canvas_i++) {
@@ -371,10 +377,10 @@ function updateResult() {
         .replace(/data:image\/png;base64,/, "")
     );
   }
-  var palettes = [] 
+  var palettes = [];
 
   for (var canvas_i = 0; canvas_i < max_colors; canvas_i++) {
-    palettes.push(palette[0])
+    palettes.push(palette[0]);
   }
 
   $.ajax({
@@ -433,6 +439,10 @@ $(function () {
 
     $("#sketch-clear").attr("disabled", true);
     $("#main-ui-submit").attr("disabled", true);
+  });
+
+  $("#mask-clear").click(function () {
+    p5_input_reference.clear_mask(mask_selected_index);
   });
 
   for (let idx = 0; idx < image_paths.length; idx++) {
@@ -514,7 +524,7 @@ $(function () {
     mask_idx = 0;
     mask_selected_index = 0;
     selected_class = $("#class-picker option:selected").attr("data-img-src");
-    palette.push(selected_class)
+    palette.push(selected_class);
     add_new_mask(mask_idx);
 
     p5_input_reference.updateImage(selected_class);
@@ -532,7 +542,7 @@ $(function () {
     p5_input_original.updateImage(selected_class);
     original_image = selected_class;
     original_choose = selected_class;
-
+    $("#pose_lr").slider("refresh");
     enableUI();
   });
 
