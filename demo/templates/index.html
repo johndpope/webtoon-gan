@@ -79,11 +79,13 @@
             </div>
             <div class="card-footer">
               <div id="sketch-control" class="row">
+
                 <button class="btn btn-danger" id="mask-clear" disabled>
                   clear mask
                 </button>
                 <button class="btn btn-danger" id="sketch-clear" disabled>
                   clear all
+
                 </button>
               </div>
             </div>
@@ -137,18 +139,24 @@
         class="row justify-content-md-center text-white bg-dark"
         id="palette"
       >
-        <div class="col-md-10">
-          <button class="btn btn-primary" id="add-mask" disabled>+</button>
-          <ul class="row" id="palette-body">
-            <div
-              class="card palette-item selected"
-              id="palette-eraser"
-              data-class="-1"
-              style="background-color: #000"
-            >
-              <img src="/demo/static/components/img/eraser.png" />
-            </div>
-          </ul>
+        <div class="col-md-9">
+          <div class="row">
+            <button class="btn btn-primary" id="add-mask">add new mask</button>
+            <button class="btn btn-danger" id="sketch-clear">reset all</button>
+          </div>
+          <div height="10px"></div>
+          <div class="row">
+            <ul class="row" id="palette-body">
+              <div
+                class="card palette-item selected"
+                id="palette-eraser"
+                data-class="-1"
+                style="background-color: #000"
+              >
+                <img src="/demo/static/components/img/eraser.png" />
+              </div>
+            </ul>
+          </div>
         </div>
       </div>
 
