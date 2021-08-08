@@ -16,7 +16,13 @@ import base64
 import os
 import secrets
 import argparse
+import json
 from PIL import Image
+import re
+from typing import List, Optional
+
+import click
+import dnnlib
 
 ######
 import torch
@@ -27,7 +33,8 @@ import torchvision.transforms.functional as TF
 from torchvision import transforms
 import io
 
-### 
+
+import legacy
 import cv2
 from tensorflow.keras.models import load_model
 
@@ -75,25 +82,10 @@ class Model(nn.Module):
             [original_stylemap, reference_stylemaps],
             input_is_stylecode=True,
             mix_space="demo",
-            mask=[masks, shift_values, args.interpolation_step],
+            mask=[masks, shift_values, args['interpolation_step']],
         )[0]
 
         return mixed
-
-    def forward_direction(self, image, direction_vectors=None):
-        get_cuda_device = image.get_device()
-        fake_stylecode = self.e_ema(image)
-        direction_vectors = torch.sum(direction_vectors, keepdim=True, dim=0).to(get_cuda_device)
-        modified_stylecode = fake_stylecode + direction_vectors
-        transformed_image, _ = self.g_ema(
-            modified_stylecode, 
-            input_is_stylecode=True
-        )
-    
-        return transformed_image
-        
-
-
 
 @app.route("/")
 def index():
@@ -115,10 +107,7 @@ def hex2val(hex):
 
 
 @torch.no_grad()
-def my_morphed_images(
-    original, references, masks, shift_values, interpolation=8, save_dir=None
-):
-    
+def my_morphed_images(original, references, masks, shift_values, interpolation=8, save_dir=None):
     original_path = original.split('?')[0] if 'demo' in original else base_path + original
     original_image = Image.open(original_path)
     reference_images = []
@@ -159,7 +148,7 @@ def my_morphed_images(
         masks.to(device),
     )
 
-    mixed = model1(original_image, reference_images, masks, shift_values).cpu()
+    mixed = model(original_image, reference_images, masks, shift_values).cpu()
     mixed = np.asarray(
         np.clip(mixed * 127.5 + 127.5, 0.0, 255.0), dtype=np.uint8
     ).transpose(
@@ -168,58 +157,51 @@ def my_morphed_images(
 
     return mixed
 
-@torch.no_grad()
-def single_image_change(original, distances, directions, save_dir=None):
-    original_path = original.split('?')[0] if 'demo' in original else base_path + original
-    original_image = Image.open(original_path)
-    original_image = TF.to_tensor(original_image).unsqueeze(0)
-    original_image = F.interpolate(
-        original_image, size=(canvas_size, canvas_size)
-    )
-    original_image = (original_image - 0.5) * 2
+def generate_image(
+    
+    network_pkl: str,
+    seed,
+    truncation_psi: float,
+    noise_mode: str,
+    outdir: str,
+    ):
+    with dnnlib.util.open_url(network_pkl) as f:
+        G = legacy.load_network_pkl(f)['G_ema'].to(device) # type: ignore
 
-    if original_image.shape[1] == 1:  # for grey-scale image
-        original_image = original_image.repeat(1, 3, 1, 1)
-        
- 
-    directions = torch.Tensor(distances).reshape(-1, 1, 1, 1) * directions
-    original_image, directions = original_image.to(device), directions.to(device)
+    os.makedirs(outdir, exist_ok=True)
+    
+    label = torch.zeros([1, G.c_dim], device=device)
+    z = torch.from_numpy(np.random.RandomState(seed).randn(1, G.z_dim)).to(device)
+    img = G(z, label, truncation_psi=truncation_psi, noise_mode=noise_mode)
+    
+    img = (img.permute(0, 2, 3, 1) * 127.5 + 128).clamp(0, 255).to(torch.uint8)[0].cpu().numpy()
+    path = f'{outdir}/seed{seed:04d}-{noise_mode}.png'
+    
+    Image.fromarray(img, 'RGB').save(path)
+    return path
+    
 
-    mixed = model2.forward_direction(original_image, directions).cpu()
-    mixed = np.asarray(
-        np.clip(mixed * 127.5 + 127.5, 0.0, 255.0), dtype=np.uint8
-    ).transpose(
-        (0, 2, 3, 1)
-    )  # 0~255
-
-    return mixed
 
 @app.route("/post", methods=["POST"])
 def post():
+    global rand
     if request.method == "POST":
         user_id = request.json["id"]
+        
         save_dir = f"demo/static/generated/{user_id}"
         if not os.path.exists(save_dir):
             os.makedirs(save_dir, exist_ok=True)
-
-        if request.json['type'] == 'original':
-            original = request.json["original"]
-            distances = request.json["distance"]
-            
-            
-            generated_images = single_image_change(
-                original,
-                distances,
-                directions,
-                save_dir=save_dir,
-            )
-
-            path = f"{save_dir}/origin_{distances[0]}_{distances[1]}.png"
-            Image.fromarray(generated_images[0]).save(path)
-            path += "?{}".format(secrets.token_urlsafe(16))
-            
+        
+        if request.json['type'] == 'random_generate':
+            rand = np.random.randint(0, 2**31-1, 1)[0]
+            path = generate_image(args['stylegan2_ckpt'],  rand, args['truncation_psi'],  'const', args['outdir'])
             return flask.jsonify(result=path)
-            
+        elif request.json['type'] == 'random_generate_noise':
+            print(rand)
+            path = generate_image(args['stylegan2_ckpt'],  rand, args['truncation_psi'],  'random', args['outdir'])
+            return flask.jsonify(result=path)
+
+        
         elif request.json['type'] == 'generate':
             
             original = request.json["original"]
@@ -252,12 +234,12 @@ def post():
                 references,
                 masks,
                 shift_values,
-                interpolation=args.interpolation_step,
+                interpolation=args['interpolation_step'],
                 save_dir=save_dir,
             )
             paths = []
 
-            for i in range(args.interpolation_step):
+            for i in range(args['interpolation_step']):
                 path = f"{save_dir}/{i}.png"
                 Image.fromarray(generated_images[i]).save(path)
                 paths.append(path + "?{}".format(secrets.token_urlsafe(16)))
@@ -298,53 +280,26 @@ def post():
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
-    parser.add_argument(
-        "--dataset",
-        type=str,
-        default="celeba_hq",
-        choices=["celeba_hq", "afhq", "lsun/church_outdoor", "lsun/car", "sketch"],
-    )
-    parser.add_argument("--interpolation_step", type=int, default=16)
-    parser.add_argument("--ckpt1", type=str, required=True)
-    parser.add_argument("--ckpt2", type=str)
-    parser.add_argument("--boundary1", type=str, required=True)
-    parser.add_argument("--boundary2", type=str, required=True)
-    parser.add_argument(
-        "--MAX_CONTENT_LENGTH", type=int, default=10000000
-    )  # allow maximum 10 MB POST
-    args = parser.parse_args()
+    with open("config.json", 'r') as config:
+        args = json.load(config)
 
     device = "cuda"
-    base_path = f"demo/static/components/img/{args.dataset}/"
-    ckpt1 = torch.load(args.ckpt1)
+    base_path = f"demo/static/components/img/{args['dataset']}/"
+    
     canvas_size = 256
 
-    print('Import Model for Synthesis...1')
-    model1 = Model(ckpt1["train_args"]).to(device)
-    model1.g_ema.load_state_dict(ckpt1["g_ema"])
-    model1.e_ema.load_state_dict(ckpt1["e_ema"])
-    model1.eval()
-    print('Success.')
+    # StyleMapGAN
+    ckpt = torch.load(args['stylemapgan_ckpt'])
+    model = Model(ckpt["train_args"]).to(device)
+    model.g_ema.load_state_dict(ckpt["g_ema"])
+    model.e_ema.load_state_dict(ckpt["e_ema"])
+    model.eval()
     
-    
-    ckpt2 = torch.load(args.ckpt2)
-    print('Import Model for Editing...2')
-    model2 = Model(ckpt2["train_args"]).to(device)
-    model2.g_ema.load_state_dict(ckpt2["g_ema"])
-    model2.e_ema.load_state_dict(ckpt2["e_ema"])
-    model2.eval()
-    print('Success.')
-
     print('Import Sketch Model')
-    sketch_model = load_model('sketch_model.h5', compile=False)
+    sketch_model = None
+    rand = 0
+    # sketch_model = load_model('sketch_model.h5')
     print('Success.')
     
-    print('Import Boundary...')
-    boundary_infos1 = torch.load(args.boundary1)
-    boundary_infos2 = torch.load(args.boundary2)
-    directions = torch.Tensor(np.stack([-boundary_infos1["boundary"], boundary_infos2["boundary"]]))
-    
-    print('Success.')
-
     app.debug = True
     app.run(host="127.0.0.1", port=7000)

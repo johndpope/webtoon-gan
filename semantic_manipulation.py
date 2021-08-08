@@ -22,7 +22,7 @@ import albumentations as A
 from albumentations.pytorch import ToTensorV2
 
 from tqdm import tqdm
-from sklearn import svm
+from sklearn import svm, preprocessing
 import glob
 import pandas as pd
 
@@ -253,7 +253,7 @@ if __name__ == "__main__":
         if os.path.isfile(args.boundary):
             print(f"{part} boundary exists!")
             boundary_infos = torch.load(args.boundary)
-            boundary = boundary_infos["boundary"]
+            boundary = torch.Tensor(boundary_infos["boundary"])
             part1_indexes = boundary_infos["part1_indexes"]
             part2_indexes = boundary_infos["part2_indexes"]
 
@@ -272,6 +272,8 @@ if __name__ == "__main__":
 
             positive_len = len(part1_indexes)
             negative_len = len(part2_indexes)
+
+
 
             positive_train = latent_codes[
                 part1_indexes[int(positive_len * testset_ratio) :]
@@ -303,6 +305,10 @@ if __name__ == "__main__":
 
             # Training set.
             train_data = np.concatenate([positive_train, negative_train], axis=0)
+            
+            scaler = preprocessing.MinMaxScaler()
+            train_data = scaler.fit_transform(train_data)
+            
             train_label = np.concatenate(
                 [
                     np.ones(len(positive_train), dtype=np.int),
@@ -311,8 +317,12 @@ if __name__ == "__main__":
                 axis=0,
             )
 
+
+
             # Validation set.
             val_data = np.concatenate([positive_val, negative_val], axis=0)
+
+            val_data = scaler.transform(val_data)
             val_label = np.concatenate(
                 [
                     np.ones(len(positive_val), dtype=np.int),
@@ -329,7 +339,8 @@ if __name__ == "__main__":
             )
 
             print(f"Training boundary. {datetime.datetime.now()}")
-            clf = svm.SVC(kernel="linear", max_iter=args.svm_train_iter)
+            
+            clf = svm.SVC(kernel="linear", max_iter=args.svm_train_iter, C=0.0001, decision_function_shape='ovo')
             classifier = clf.fit(train_data, train_label)
             print(f"Finish training. {datetime.datetime.now()}")
 
@@ -346,10 +357,15 @@ if __name__ == "__main__":
 
             print("classifier.coef_.shape", classifier.coef_.shape)
             boundary = classifier.coef_.reshape(1, -1).astype(np.float32)
+            boundary = scaler.inverse_transform(boundary)
             boundary = boundary / np.linalg.norm(boundary)
+            # print(train_data.shape)
+            # print(boundary.shape)
+            
             boundary = boundary.reshape(latent_code_shape)
+            
             print("boundary.shape", boundary.shape)
-
+            
             boundary = torch.from_numpy(boundary).float()
 
             torch.save(
