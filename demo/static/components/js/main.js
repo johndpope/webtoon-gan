@@ -168,9 +168,11 @@ function ReferenceNameSpace() {
       s.body = null;
     };
 
-    s.clear_mask = function (idx) {
-      s.mask[idx].clear();
-    };
+
+    s.clear_mask = function (idx){
+      s.mask[idx].clear()
+    }
+
 
     s.updateImage = function (url) {
       s.body = s.loadImage(url);
@@ -345,15 +347,31 @@ function MaskNameSpace(idx) {
   };
 }
 
-function updateOrigin() {
+
+function updateOriginRandomGenerate() {
   $.ajax({
     type: "POST",
     url: "/post",
     data: JSON.stringify({
-      type: "original",
       id: id,
-      original: original_image,
-      distance: [-parseInt($("#pose_lr").val()), 0],
+      type: "random_generate"
+    }),
+    dataType: "json",
+    contentType: "application/json",
+  }).done(function (data, textStatus, jqXHR) {
+    let url = data["result"];
+    p5_input_original.updateImage(url);
+    original_choose = url;
+  });
+}
+
+function updateOriginRandomGenerateNoise() {
+  $.ajax({
+    type: "POST",
+    url: "/post",
+    data: JSON.stringify({
+      id: id,
+      type: "random_generate_noise"
     }),
     dataType: "json",
     contentType: "application/json",
@@ -553,7 +571,8 @@ $(function () {
   $("#pose_lr").slider();
   // $("#pose_lr").slider("disable");
   $("#pose_lr").change(() => updateOrigin());
-
+  $("#random_generate").click(() => updateOriginRandomGenerate());
+  $("#random_generate_noise").click(() => updateOriginRandomGenerateNoise());
   $("#ex0").slider();
   $("#ex1").slider({
     formatter: function (value) {
