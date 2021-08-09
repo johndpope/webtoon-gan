@@ -162,7 +162,7 @@ def generate_image(
     network_pkl: str,
     seed,
     truncation_psi: float,
-    noise_mode: str,
+    noise_strength: float,
     outdir: str,
     ):
     with dnnlib.util.open_url(network_pkl) as f:
@@ -172,10 +172,10 @@ def generate_image(
     
     label = torch.zeros([1, G.c_dim], device=device)
     z = torch.from_numpy(np.random.RandomState(seed).randn(1, G.z_dim)).to(device)
-    img = G(z, label, truncation_psi=truncation_psi, noise_mode=noise_mode)
-    
+    z += noise_strength * torch.randn(1, G.z_dim).to(device)
+    img = G(z, label, truncation_psi=truncation_psi, noise_mode='const')
     img = (img.permute(0, 2, 3, 1) * 127.5 + 128).clamp(0, 255).to(torch.uint8)[0].cpu().numpy()
-    path = f'{outdir}/seed{seed:04d}-{noise_mode}.png'
+    path = f'{outdir}/seed{seed:04d}-{noise_strength}.png'
     
     Image.fromarray(img, 'RGB').save(path)
     return path
@@ -194,11 +194,11 @@ def post():
         
         if request.json['type'] == 'random_generate':
             rand = np.random.randint(0, 2**31-1, 1)[0]
-            path = generate_image(args['stylegan2_ckpt'],  rand, args['truncation_psi'],  'const', args['outdir'])
+            path = generate_image(args['stylegan2_ckpt'],  rand, args['truncation_psi'],  0, args['outdir'])
             return flask.jsonify(result=path)
         elif request.json['type'] == 'random_generate_noise':
             print(rand)
-            path = generate_image(args['stylegan2_ckpt'],  rand, args['truncation_psi'],  'random', args['outdir'])
+            path = generate_image(args['stylegan2_ckpt'],  rand, args['truncation_psi'],  0.2, args['outdir'])
             return flask.jsonify(result=path)
 
         
