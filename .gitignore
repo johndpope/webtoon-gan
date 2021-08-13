@@ -134,3 +134,4 @@ dmypy.json
 !/expr/semantic_manipulation/left_right/*.npy
 /rescale
 *.pkl
+*.pt

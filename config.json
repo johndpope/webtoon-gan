@@ -4,7 +4,11 @@
     "MAX_CONTENT_LENGTH": 10000000,
     "stylemapgan_ckpt": "/ssd2/subinium/webtoon16x16/webtoon-gan/expr/checkpoints/040000.pt",
     "interpolation_step": 16,
-    "stylegan2_ckpt": "./network-snapshot-007338.pkl",
+    "stylegan2_ckpt": "./network-snapshot-xflip-020643.pkl",
     "truncation_psi": 0.8,
+    "direct_manipulation_vector": [
+        "./pose.pt",
+        "./gender.pt"
+    ],
     "outdir": "./demo/static/components/img/sketch/random_generated"
 }
