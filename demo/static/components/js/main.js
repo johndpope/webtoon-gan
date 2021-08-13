@@ -359,24 +359,61 @@ function updateOriginRandomGenerate() {
     dataType: "json",
     contentType: "application/json",
   }).done(function (data, textStatus, jqXHR) {
-    let url = data["result"];
-    p5_input_original.updateImage(url);
-    original_choose = url;
+    let paths = data["result"];
+    for(let i = 0 ; i < paths.length ; i++){
+      console.log(paths[i])
+      $("#randomSampleGenerated").append(
+        `<img class='random-sample rounded' src='${paths[i]}' />` 
+      )
+    }
+    // p5_input_original.updateImage(url);
+    // original_choose = url;
   });
 }
 
 function updateOriginRandomGenerateNoise() {
+  
+  random_seed = parseInt($('.random-sample.selected').attr('src').split('/').slice(-1)[0].split('.')[0]);
+  
   $.ajax({
     type: "POST",
     url: "/post",
     data: JSON.stringify({
       id: id,
+      random_seed:random_seed,
       type: "random_generate_noise"
     }),
     dataType: "json",
     contentType: "application/json",
   }).done(function (data, textStatus, jqXHR) {
-    let url = data["result"];
+    let paths = data["result"];
+    for(let i = 0 ; i < paths.length ; i++){
+      console.log(paths[i])
+      $("#randomSampleGeneratedNoise").append(
+        `<img class='random-sample-noise rounded' src='${paths[i]}' />` 
+      )
+    }
+  });
+}
+
+function updateOriginRandom() {
+  let random_seed = $('.random-sample.selected').attr('src').split('/').slice(-1)[0].split('.')[0];
+  $.ajax({
+    type: "POST",
+    url: "/post",
+    data: JSON.stringify({
+      id: id,
+      random_seed:random_seed,
+      manipulation : [
+        parseInt($('#pose_lr').val()),
+        parseInt($('#gender').val())
+      ],
+      type: "direct_manipulation"
+    }),
+    dataType: "json",
+    contentType: "application/json",
+  }).done(function (data, textStatus, jqXHR) {
+    let url = data['result']
     p5_input_original.updateImage(url);
     original_choose = url;
   });
@@ -569,10 +606,13 @@ $(function () {
     $(this).addClass("selected");
   });
   $("#pose_lr").slider();
-  // $("#pose_lr").slider("disable");
-  $("#pose_lr").change(() => updateOrigin());
-  $("#random_generate").click(() => updateOriginRandomGenerate());
-  $("#random_generate_noise").click(() => updateOriginRandomGenerateNoise());
+  $("#gender").slider();
+  $("#pose_lr").change(() => updateOriginRandom());
+  $("#gender").change(() => updateOriginRandom());
+  
+  $("#firstStep").click(() => updateOriginRandomGenerate());
+  $("#secondStep").click(() => updateOriginRandomGenerateNoise());
+  
   $("#ex0").slider();
   $("#ex1").slider({
     formatter: function (value) {
@@ -676,8 +716,38 @@ $(function () {
   $(function () {
     $('[data-toggle="popover"]').popover();
   });
+
+  // image select
+  $(document).on('click', '.random-sample',function(){
+    
+    $('.random-sample.selected').removeClass('selected');
+    $(this).addClass('selected');
+  });
+
+  $(document).on('click', '.random-sample-noise',function(){
+    
+    $('.random-sample-noise.selected').removeClass('selected');
+    $(this).addClass('selected');
+  });
+
+  $(".close").click(()=>{
+    
+    url = $('.random-sample-noise.selected').attr('src');
+    p5_input_original.updateImage(url);
+    original_choose = url;
+  })
+
+  $('.again').click(()=>{
+    $('#randomSampleGenerated').empty()
+    updateOriginRandomGenerate()
+  })
+
+  $('.again-noise').click(()=>{
+    $('#randomSampleGeneratedNoise').empty()
+    updateOriginRandomGenerateNoise()
+  })
+
+  
 });
 
-$("#myModal").on("shown.bs.modal", function () {
-  $("#myInput").trigger("focus");
-});
+

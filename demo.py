@@ -97,6 +97,16 @@ def index():
         image_paths=list(os.walk(base_path)),
     )
 
+@app.route("/single")
+def single():
+    image_paths = []
+    return render_template(
+        "single.html",
+        canvas_size=canvas_size,
+        base_path=base_path,
+        image_paths=list(os.walk(base_path)),
+    )
+
 
 # "#010FFF" -> (1, 15, 255)
 def hex2val(hex):
@@ -162,8 +172,9 @@ def generate_image(
     network_pkl: str,
     seed,
     truncation_psi: float,
-    noise_strength: float,
+    noise_strength,
     outdir: str,
+    add_vector = None
     ):
     with dnnlib.util.open_url(network_pkl) as f:
         G = legacy.load_network_pkl(f)['G_ema'].to(device) # type: ignore
@@ -172,10 +183,12 @@ def generate_image(
     
     label = torch.zeros([1, G.c_dim], device=device)
     z = torch.from_numpy(np.random.RandomState(seed).randn(1, G.z_dim)).to(device)
-    z += noise_strength * torch.randn(1, G.z_dim).to(device)
+    z += noise_strength[1] * torch.from_numpy(np.random.RandomState(noise_strength[0]).randn(1, G.z_dim)).to(device)
+    if add_vector != None:
+        z += add_vector.to(device)
     img = G(z, label, truncation_psi=truncation_psi, noise_mode='const')
     img = (img.permute(0, 2, 3, 1) * 127.5 + 128).clamp(0, 255).to(torch.uint8)[0].cpu().numpy()
-    path = f'{outdir}/seed{seed:04d}-{noise_strength}.png'
+    path = f'{outdir}/{seed:04d}-{noise_strength[0]:04d}-{noise_strength[1]:.3f}.png'
     
     Image.fromarray(img, 'RGB').save(path)
     return path
@@ -193,14 +206,34 @@ def post():
             os.makedirs(save_dir, exist_ok=True)
         
         if request.json['type'] == 'random_generate':
-            rand = np.random.randint(0, 2**31-1, 1)[0]
-            path = generate_image(args['stylegan2_ckpt'],  rand, args['truncation_psi'],  0, args['outdir'])
-            return flask.jsonify(result=path)
+            paths = []
+            for i in range(9):
+                rand = np.random.randint(0, 2**31-1, 1)[0]
+                path = generate_image(args['stylegan2_ckpt'],  rand, args['truncation_psi'],  (0, 0), args['outdir'])
+                paths.append(path)
+        
+            return flask.jsonify(result=paths)
         elif request.json['type'] == 'random_generate_noise':
-            print(rand)
-            path = generate_image(args['stylegan2_ckpt'],  rand, args['truncation_psi'],  0.2, args['outdir'])
+            paths = []
+            rand = request.json['random_seed']
+            for rand_size in np.linspace(0, 0.75, num=15, endpoint=False):
+                rand_noise = np.random.randint(0, 2**31-1, 1)[0]
+                path = generate_image(args['stylegan2_ckpt'],  rand, args['truncation_psi'], (rand_noise, rand_size), args['outdir'])
+                paths.append(path)
+            
+            return flask.jsonify(result=paths)
+
+        elif request.json['type'] == 'direct_manipulation':
+            rand, rand_noise, rand_size = request.json['random_seed'].split('-')
+            manipulation_size = request.json['manipulation']
+            print(manipulation_size)
+
+            dmv_total = np.sum([dmv.cpu() * size for dmv, size in zip(direct_manipulation_vectors, manipulation_size)], axis=0)
+            print(dmv_total.shape)
+            path = generate_image(args['stylegan2_ckpt'], int(rand), args['truncation_psi'], (int(rand_noise), float(rand_size)), args['outdir'], dmv_total)
             return flask.jsonify(result=path)
 
+        
         
         elif request.json['type'] == 'generate':
             
@@ -301,5 +334,10 @@ if __name__ == "__main__":
     # sketch_model = load_model('sketch_model.h5')
     print('Success.')
     
+    direct_manipulation_vectors = [] 
+    for dmv_path in args['direct_manipulation_vector']:
+        print(dmv_path)
+        direct_manipulation_vectors.append(torch.load(dmv_path)['boundary'])
+
     app.debug = True
     app.run(host="127.0.0.1", port=7000)

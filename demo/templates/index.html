@@ -3,19 +3,7 @@
  -->
 
 {% extends "layout.html" %} {% block content %}
-<nav class="navbar shadow navbar-dark bg-dark">
-  <a class="navbar-brand" href="#">
-    <img
-      src="/demo/static/components/img/w.svg"
-      width="30"
-      height="30"
-      class="d-inline-block align-top"
-      alt=""
-    />
 
-    Interactive Webtoon Editing System
-  </a>
-</nav>
 
 <div class="main container-fluid bg-dark">
   <div class="row justify-content-md-center bg-dark">
@@ -34,37 +22,11 @@
             </div>
             <div class="card-footer">
               <div id="sketch-control" class="row">
-                <button class="btn btn-danger" id="random_generate" >
-                  random
-                </button>
-                <button class="btn btn-danger" id="random_generate_noise">
-                  detail
-                </button>
-                <button
-                  class="btn btn-secondary"
-                  type="button"
-                  data-toggle="collapse"
-                  href="#collapseExample"
-                  aria-expanded="false"
-                  aria-controls="collapseExample"
-                >
-                  Edit
+                <button class="btn" >
+                  Import Image
                 </button>
               </div>
-              <div class="collapse" id="collapseExample">
-                <div class="card">
-                  <div class="card-body">
-                    <input
-                      id="pose_lr"
-                      type="text"
-                      data-slider-min="-15"
-                      data-slider-max="15"
-                      data-slider-step="3"
-                      data-slider-value="0"
-                    />
-                  </div>
-                </div>
-              </div>
+              
             </div>
           </div>
         </div>
