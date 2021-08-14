@@ -10,22 +10,18 @@ Creative Commons, PO Box 1866, Mountain View, CA 94042, USA.
 
 // Refer to https://github.com/quolc/neural-collage/blob/master/static/demo_feature_blending/js/main.js
 
-max_colors = 9;
+max_colors = 5;
 colors = [
-  "#FE2712",
-  "#66B032",
-  "#FEFE33",
-  "#FE2712",
-  "#66B032",
-  "#FEFE33",
-  "#FE2712",
-  "#66B032",
-  "#FEFE33",
+  "#FF3B30", 
+  "#4Cd964",
+  "#5856d6",
+  "#FF9500",
+  "#007AFF",
 ];
 original_image = null;
 original_choose = null;
 
-palette = [];
+palette = null;
 mask_selected_index = 0;
 
 ui_uninitialized = true;
@@ -295,7 +291,9 @@ function generateOutputNameSpace() {
 
       s.images = [];
       s.currentImage = 0;
-      s.frameRate(15);
+      let download_button = s.createButton('export');
+      download_button.id('download-button')
+      download_button.position(300,6);
     };
 
     s.draw = function () {
@@ -435,7 +433,7 @@ function updateResult() {
   var palettes = [];
 
   for (var canvas_i = 0; canvas_i < max_colors; canvas_i++) {
-    palettes.push(palette[0]);
+    palettes.push(palette);
   }
 
   $.ajax({
@@ -484,7 +482,7 @@ $(function () {
     p5_input_original.clear_canvas();
     p5_output.clear_canvas();
     $(".palette-item-class").remove();
-    palette = [];
+    palette = null;
     original_image = null;
     original_choose = null;
     mask_selected_index = null;
@@ -529,16 +527,9 @@ $(function () {
     $("#class-picker").append("</optgroup>");
   }
   $("#class-picker").imagepicker({
-    hide_select: false,
+    hide_select: true,
   });
 
-  $("#class-picker").after(
-    '<button type="submit" class="form-control btn btn-success col-md-2" id="class-picker-submit-original">add to original</button>'
-  );
-
-  $("#class-picker").after(
-    '<button type="submit" class="form-control btn btn-primary col-md-2" id="class-picker-submit-reference">add to reference</button>'
-  );
 
   $("#class-picker-submit-reference").after(
     '<div class="row" id="class-picker-ui"></div>'
@@ -549,12 +540,10 @@ $(function () {
 
   function add_new_mask(idx) {
     $("#palette-body").append(
-      '<div class="card md-3 palette-item palette-item-class" id="palette-' +
-        idx +
-        '"' +
-        '" style="background-color: ' +
-        colors[idx] +
-        ';"></li>'
+      `<div class="card md-3 palette-item palette-item-class" 
+        id="palette-${idx}"
+        style="background-color: ${colors[idx]};
+        border: dashed ${colors[idx]}"></div>`
     );
 
     $("#palette-" + idx).append(
@@ -579,7 +568,8 @@ $(function () {
     mask_idx = 0;
     mask_selected_index = 0;
     selected_class = $("#class-picker option:selected").attr("data-img-src");
-    palette.push(selected_class);
+    
+    palette = selected_class;
     add_new_mask(mask_idx);
 
     p5_input_reference.updateImage(selected_class);
@@ -702,8 +692,8 @@ $(function () {
   });
 
   // Image Download
-
-  $("#download-button").on("click", function () {
+  $(document).on('click', '#download-button', function () {
+    
     var canvas = $("#p5-right canvas").get()[0];
     image = canvas
       .toDataURL("image/png")

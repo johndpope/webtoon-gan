@@ -1,249 +1,163 @@
 <!-- 
-    Refer to https://github.com/quolc/neural-collage/blob/master/templates/demo_feature_blending/index.html
- -->
-
-{% extends "layout.html" %} {% block content %}
-
-
-<div class="main container-fluid bg-dark">
-  <div class="row justify-content-md-center bg-dark">
-    <div class="col-md-12 bg-dark" id="main-column">
-      <!-- title -->
-
-      <!-- main UI -->
-      <div class="row justify-content-md-center bg-dark" id="main-ui">
-        <div class="col-md-3">
-          <div class="card shadow text-white bg-dark">
-            <div class="card-header">Original Image / Canvas Move</div>
-            <div class="card-body">
-              <div id="p5-original-wrapper" class="p5-wrapper">
-                <div id="p5-original" class="p5"></div>
-              </div>
-            </div>
-            <div class="card-footer">
-              <div id="sketch-control" class="row">
-                <button class="btn" >
-                  Import Image
-                </button>
-              </div>
-              
-            </div>
+   Refer to https://github.com/quolc/neural-collage/blob/master/templates/demo_feature_blending/index.html
+   -->
+   {% extends "layout.html" %} {% block content %}
+   <div class="main container-fluid">
+      <div class="row justify-content-md-center main-sub">
+        <div class='col-md-1 shadow-sm'>
+          <div class = 'row justify-content-md-center'>
+            <button class="styled-button" id="add-mask">New</button>
+            <button class="styled-button" id="sketch-clear">Reset</button>
           </div>
-        </div>
-
-        <div class="col-md-3">
-          <div class="card shadow text-white bg-dark">
-            <div class="card-header">Reference Images / Canvas Draw</div>
-            <div class="card-body">
-              <div id="p5-reference-wrapper" class="p5-wrapper">
-                <div id="p5-reference" class="p5"></div>
-              </div>
-            </div>
-            <div class="card-footer">
-              <div id="sketch-control" class="row">
-
-                <button class="btn btn-danger" id="mask-clear" disabled>
-                  clear mask
-                </button>
-                <button class="btn btn-danger" id="sketch-clear" disabled>
-                  clear all
-
-                </button>
-              </div>
-            </div>
-          </div>
-        </div>
-
-        <div class="col-md-1 my-auto" id="main-ui-middle">
-          <button
-            type="submit"
-            class="shadow form-control btn btn-danger"
-            id="main-ui-submit"
-            disabled
-          >
-            ➞
-          </button>
-        </div>
-
-        <div class="col-md-3">
-          <div class="card shadow text-white bg-dark">
-            <div class="card-header">Generated Result</div>
-            <div class="card-body">
-              <div id="p5-right-wrapper" class="p5-wrapper">
-                <div id="p5-right" class="p5"></div>
-              </div>
-            </div>
-            <div class="card-footer">
-              <div id="result-control" class="row">
-                <input
-                  id="ex1"
-                  data-slider-id="ex1Slider"
-                  type="text"
-                  data-slider-min="0"
-                  data-slider-max="15"
-                  data-slider-step="1"
-                  data-slider-value="15"
-                />
-              </div>
-              <button
-                id="download-button"
-                type="button"
-                class="btn btn-secondary btn-sm"
-              >
-                Download
-              </button>
-            </div>
-          </div>
-        </div>
-      </div>
-      <!-- palette -->
-      <div
-        class="row justify-content-md-center text-white bg-dark"
-        id="palette"
-      >
-        <div class="col-md-9">
-          <div class="row">
-            <button class="btn btn-primary" id="add-mask">add new mask</button>
-            <button class="btn btn-danger" id="sketch-clear">reset all</button>
-          </div>
-          <div height="10px"></div>
-          <div class="row">
-            <ul class="row" id="palette-body">
+          <div class='row justify-content-md-center'>
+            <div id="palette-body">
               <div
-                class="card palette-item selected"
-                id="palette-eraser"
-                data-class="-1"
-                style="background-color: #000"
-              >
-                <img src="/demo/static/components/img/eraser.png" />
+                  class="card palette-item selected"
+                  id="palette-eraser"
+                  data-class="-1"
+                  style="background-color: #000; border : dashed #000"
+                  >
+                  <img src="/demo/static/components/img/eraser.png" />
               </div>
-            </ul>
+            </div> 
           </div>
+            
         </div>
-      </div>
-
-      <!-- Button trigger modal -->
-      <div class="row justify-content-md-center text-white bg-dark">
-        <button
-          type="button"
-          class="btn btn-info"
-          data-toggle="modal"
-          data-target="#exampleModal"
-        >
-          Import Image
-        </button>
-      </div>
-      <!-- Modal -->
-      <div
-        class="modal fade"
-        id="exampleModal"
-        tabindex="-1"
-        aria-labelledby="exampleModalLabel"
-        aria-hidden="true"
-      >
-        <div class="modal-dialog bg-dark text-white modal-xl">
-          <div class="modal-content bg-dark">
-            <div class="modal-header bg-dark">
-              <h5 class="modal-title" id="exampleModalLabel">Image Search</h5>
-              <button
-                type="button"
-                class="close"
-                data-dismiss="modal"
-                aria-label="Close"
-              >
-                <span aria-hidden="true">&times;</span>
-              </button>
+         <div class="col-md-8 shadow-sm " id="main-column-1">
+            <div class="row" id="main-ui">
+               <div class="col align-self-center ">
+                
+                  <div class="card editor">
+                     <div class="card-body">
+                        <div id="p5-original-wrapper" class="p5-wrapper">
+                           <div id="p5-original" class="p5"></div>
+                        </div>
+                     </div>
+                  </div>
+                  
+               </div>
+               <div class="col align-self-center ">
+                  <!-- <div class='row justify-content-md-center'>
+                     
+                  </div> -->
+                  <div class="card editor">
+                    <div class="card-body">
+                       <div id="p5-reference-wrapper" class="p5-wrapper">
+                          <div id="p5-reference" class="p5"></div>
+                       </div>
+                    </div>
+                 </div>
+                  
+               </div>
+               <div class="col-md-1 align-self-center" id="main-ui-middle">
+                  <button
+                     type="submit"
+                     class="form-control btn"
+                     id="main-ui-submit"
+                     disabled
+                     >
+                  ➞
+                  </button>
+               </div>
+               <div class="col align-self-center ">
+                 
+                  <div class="card editor">
+                     <div class="card-body">
+                        <div id="p5-right-wrapper" class="p5-wrapper">
+                           <div id="p5-right" class="p5"></div>
+                        </div>
+                     </div>
+                     <div id="result-control" class="row">
+                      <input
+                         id="ex1"
+                         data-slider-id="ex1Slider"
+                         type="text"
+                         data-slider-min="0"
+                         data-slider-max="15"
+                         data-slider-step="1"
+                         data-slider-value="15"
+                         />
+                   </div>
+                     
+                  </div>
+               </div>
             </div>
-            <div class="modal-body">
-              <div
-                class="row justify-content-md-center text-white bg-dark"
-                id="class-list"
-              >
-                <div class="col-md-10">
-                  <select
-                    class="image-picker show-html form-control col-md-6"
-                    id="class-picker"
+            <div class="row" id="main-ui-under"></div>
+         </div>
+         <div class='col-md-3 shadow-sm' id='main-column-2'>
+            <div id="class-list">
+              <button type="submit" class="styled-button" id="class-picker-submit-original">Original</button>
+              <button type="submit" class="styled-button" id="class-picker-submit-reference">Reference</button>
+              <select
+                  class="image-picker show-html form-control col-md-6"
+                  id="class-picker"
                   ></select>
-                </div>
 
-                <div class="col-md-10 bg-dark">
-                  <label class="cabinet center-block">
-                    <figure>
-                      <div class="thumbnail">
+              
+            
+              <label class="cabinet center-block">
+                  <figure>
+                    <div class="thumbnail">
                         <img
                           src="/demo/static/components/img/face-detection.png"
                           class="img-responsive"
                           id="item-img-output"
-                        />
-                      </div>
-                      <input
+                          />
+                    </div>
+                    <input
                         type="file"
                         class="item-img file center-block"
                         name="file_photo"
-                      />
-                    </figure>
-                  </label>
-                </div>
-              </div>
+                        />
+                  </figure>
+              </label>
+            
             </div>
-            <div
-              class="modal fade bd-example-modal-lg"
-              id="cropImagePop"
-              tabindex="-1"
-              role="dialog"
-              aria-labelledby="myModalLabel"
-              aria-hidden="true"
+         </div>
+         <div
+            class="modal fade bd-example-modal-lg"
+            id="cropImagePop"
+            tabindex="-1"
+            role="dialog"
+            aria-labelledby="myModalLabel"
+            aria-hidden="true"
             >
-              <div class="modal-dialog bg-dark modal-lg">
-                <div class="modal-content bg-dark">
+            <div class="modal-dialog  modal-lg">
+               <div class="modal-content ">
                   <div class="modal-header">
-                    <h4 class="modal-title" id="myModalLabel">Edit Photo</h4>
-                    <button
-                      type="button"
-                      class="close"
-                      data-dismiss="modal"
-                      aria-label="Close"
-                    >
-                      <span aria-hidden="true">&times;</span>
-                    </button>
+                     <h4 class="modal-title" id="myModalLabel">Edit Photo</h4>
+                     <button
+                        type="button"
+                        class="close"
+                        data-dismiss="modal"
+                        aria-label="Close"
+                        >
+                     <span aria-hidden="true">&times;</span>
+                     </button>
                   </div>
                   <div class="modal-body">
-                    <select id="upload-select" class="custom-select"></select>
-                    <div id="upload-demo" class="text-center"></div>
+                     <select id="upload-select" class="custom-select"></select>
+                     <div id="upload-demo" class="text-center"></div>
                   </div>
                   <div class="modal-footer">
-                    <button
-                      type="button"
-                      class="btn btn-secondary"
-                      data-dismiss="modal"
-                    >
-                      Close
-                    </button>
-                    <button
-                      type="button"
-                      id="cropImageBtn"
-                      class="btn btn-primary"
-                    >
-                      Crop
-                    </button>
+                     <button
+                        type="button"
+                        class="btn btn-secondary"
+                        data-dismiss="modal"
+                        >
+                     Close
+                     </button>
+                     <button
+                        type="button"
+                        id="cropImageBtn"
+                        class="btn btn-primary"
+                        >
+                     Crop
+                     </button>
                   </div>
-                </div>
-              </div>
+               </div>
             </div>
-          </div>
-          <div class="modal-footer">
-            <button
-              type="button"
-              class="btn btn-secondary"
-              data-dismiss="modal"
-            >
-              Close
-            </button>
-          </div>
-        </div>
+         </div>
       </div>
-    </div>
-  </div>
-</div>
-
-{% endblock %}
+   </div>
+   {% endblock %}
