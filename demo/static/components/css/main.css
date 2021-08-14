@@ -2,20 +2,48 @@
   Refer to https://github.com/quolc/neural-collage/blob/master/static/demo_feature_blending/css/main.css
 */
 
+* {
+  font-family:'Roboto', sans-serif;
+}
+
 html,
 body {
+  
   height: 100%;
 }
 
-.main {
-  height: 100%;
+.navbar {
+  background-color: #676767;
+  height :4%;
 }
+
+.main {
+  height: 96%;
+  min-height: 96%;
+  
+}
+
+.main-sub {
+  height: 100%;
+  min-height: 100%;
+}
+
 
 .container-fluid {
   padding: 0;
 }
 
-#main-column {
+#main-column-1 {
+  height:100%;
+  min-height: 100%;
+  background-color: rgba(0, 0, 0, 0.1);
+
+}
+
+#main-column-2 {
+  height:100%;
+  min-height:100%;
+  overflow-y:scroll;
 }
 
 #title {
@@ -32,11 +60,15 @@ body {
 #base-class {
   padding: 10px;
 }
-
-#main-ui {
-  margin: 20px 0 10px;
-  text-align: center;
+#main-ui{
+  height:80%;
 }
+
+#main-ui-under {
+  height: 20%;
+}
+
+
 #main-ui p {
   margin-bottom: 5px;
 }
@@ -54,13 +86,8 @@ body {
 #main-ui #result-control .slider {
   margin: 10px auto 0;
 }
-#main-ui #main-ui-middle {
-  padding: 0;
-}
-#main-ui #main-ui-middle button {
-  width: max-content;
-  font-size: large;
-}
+
+
 #main-ui .p5-wrapper {
   position: relative;
   width: 100%;
@@ -79,9 +106,21 @@ body {
   right: 0;
 }
 
+
+#main-ui-submit {
+ background-color: #FF3B30;
+ color:white;
+ text-align: center;
+}
+
 #palette {
   margin: 10px 0 10px;
 }
+
+#palette-body{
+  max-width: 50%;
+}
+
 #palette #palette-body {
   height: 90px;
   margin: 0;
@@ -93,44 +132,32 @@ body {
 }
 #palette #palette-body .palette-item {
   float: left;
-  margin-right: 4px;
-  width: 90px;
-  height: 90px;
-  opacity: 0.3;
-  outline: solid;
-}
-#palette #palette-body .palette-item img {
   width: 75px;
   height: 75px;
-  margin: 2px;
-}
-#palette #palette-body .palette-item.selected {
-  opacity: 1;
+  opacity: 0.3;  
+  border : 1px;
 }
 
-/* #class-list {
-  margin: 20px 0 30px; }
-  #class-list #class-picker-ui {
-    margin: 5px 0; }
-    #class-list #class-picker-ui button {
-      margin-left: 5px; }
-  #class-list .image_picker_selector {
-    max-height: 445px;
-    overflow: scroll; }
-*/
+.palette-item{
+  transition: transform .2s; 
+  margin-top: 10px;
+}
+
+.palette-item:hover {
+  cursor: pointer;
+  transform: scale(1.2); /* (150% zoom - Note: if the zoom is too large, it will go outside of the viewport) */
+}
+
+#palette #palette-body .palette-item.selected {
+  opacity: 1;
+  border : 2px;
+}
+
 
 #class-list .image_picker_selector img {
   width: 75px;
   height: 75px;
 }
-
-/* #class-list .image_picker_selector li { 
-margin: 0px 4px 4px 0px !important; }
-#class-list .image_picker_selector li .thumbnail {
-background: #fff;
-padding: 4px !important; }
-#class-list .image_picker_selector li .thumbnail.selected {
-background: #0088cc; } */
 
 .p5Canvas {
   width: 100% !important;
@@ -262,7 +289,7 @@ label.cabinet input.file {
 
 #msform .action-button-previous {
   width: 100px;
-  background: #616161;
+  background: #676767;
   font-weight: bold;
   color: white;
   border: 0 none;
@@ -274,7 +301,7 @@ label.cabinet input.file {
 
 #msform .action-button-previous:hover,
 #msform .action-button-previous:focus {
-  box-shadow: 0 0 0 2px white, 0 0 0 3px #616161
+  box-shadow: 0 0 0 2px white, 0 0 0 3px #676767
 }
 
 select.list-dt {
@@ -290,10 +317,15 @@ select.list-dt:focus {
 }
 
 .card {
-  z-index: 0;
-  border: none;
-  border-radius: 0.5rem;
-  position: relative
+  border : none;
+}
+
+.card.editor{
+  width:100%;
+}
+
+.editor > .card-body {
+  padding : 0;
 }
 
 .fs-title {
@@ -432,4 +464,64 @@ select.list-dt:focus {
 
 .random-sample-noise:hover {
   transform: scale(1.2); /* (150% zoom - Note: if the zoom is too large, it will go outside of the viewport) */
+}
+
+img.image_picker_image {
+  transition: transform .2s; 
+  border: 0.5px solid gray;
+}
+
+img.image_picker_image:hover {
+  cursor: pointer;
+  transform: scale(1.4); /* (150% zoom - Note: if the zoom is too large, it will go outside of the viewport) */
+}
+
+#download-button {
+  display:inline-block;
+  background-color: #4Cd964;
+  border:0.1em solid #FFFFFF;
+  margin:0 0.3em 0.3em 0;
+  border-radius:0.12em;
+  box-sizing: border-box;
+  text-decoration:none;
+  font-family:'Roboto',sans-serif;
+  font-weight:300;
+  color:#FFFFFF;
+  text-align:center;
+  transition: all 0.2s;
+}
+
+#download-button:hover{
+  color:#4Cd964;
+  border:0.1em solid #4Cd964;
+  background-color:#FFFFFF;
+}
+
+.styled-button {
+  display:inline-block;
+  background-color: #676767;
+  border:0.1em solid #FFFFFF;
+  margin:0 0.3em 0.3em 0;
+  border-radius:0.12em;
+  box-sizing: border-box;
+  text-decoration:none;
+  font-family:'Roboto',sans-serif;
+  font-weight:300;
+  color:#FFFFFF;
+  text-align:center;
+  transition: all 0.2s;
+}
+
+.styled-button:hover{
+  color:#000000;
+  border:0.1em solid #000;
+  background-color:#FFFFFF;
+}
+
+ul.thumbnails.image_picker_selector li .thumbnail {
+  padding: 0px;
+}
+
+.thumbnail.selected .image_picker_image{
+  border : 1px solid #007AFF;
 }
