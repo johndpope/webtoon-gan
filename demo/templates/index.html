@@ -4,88 +4,87 @@
    {% extends "layout.html" %} {% block content %}
    <div class="main container-fluid">
       <div class="row justify-content-md-center main-sub">
-        <div class='col-md-1 shadow-sm'>
-          <div class = 'row justify-content-md-center'>
-            <button class="styled-button" id="add-mask">New</button>
-            <button class="styled-button" id="sketch-clear">Reset</button>
-          </div>
-          <div class='row justify-content-md-center'>
-            <div id="palette-body">
-              <div
-                  class="card palette-item selected"
-                  id="palette-eraser"
-                  data-class="-1"
-                  style="background-color: #000; border : dashed #000"
-                  >
-                  <img src="/demo/static/components/img/eraser.png" />
-              </div>
-            </div> 
-          </div>
-            
-        </div>
-         <div class="col-md-8 shadow-sm " id="main-column-1">
+        
+         <div class="col-md-9 shadow-sm " id="main-column-1">
             <div class="row" id="main-ui">
-               <div class="col align-self-center ">
-                
-                  <div class="card editor">
-                     <div class="card-body">
-                        <div id="p5-original-wrapper" class="p5-wrapper">
-                           <div id="p5-original" class="p5"></div>
+               <div class='card col-md-12 align-self-center'>
+                  
+                  <div class='card-body'>
+                     <div class='row justify-content-md-center align-items-center d-flex h-90'>
+                        <div class="col-md-3 align-self-center">
+                           
+                           <div id="p5-original-wrapper" class="p5-wrapper">
+                              <div id="p5-original" class="p5"></div>
+                           </div>
+                     
+                        </div>
+                        <div class="col-md-3 align-self-center ">
+                           
+                           <div class="card editor">
+                              <div class="card-body">
+                                 <div id="p5-reference-wrapper" class="p5-wrapper">
+                                    <div id="p5-reference" class="p5"></div>
+                                 </div>
+                              </div>
+                           </div>
+                           
+                        </div>
+                        <div class="col-md-1 align-self-center" id="main-ui-middle">
+                           <button
+                              type="submit"
+                              class="form-control btn"
+                              id="main-ui-submit"
+                              disabled
+                              >
+                           ➞
+                           </button>
+                        </div>
+                        <div class="col-md-3 align-self-center ">
+                           
+                           <div class="card editor">
+                              <div class="card-body">
+                                 <div id="p5-right-wrapper" class="p5-wrapper">
+                                    <div id="p5-right" class="p5"></div>
+                                 </div>
+                              </div>
+                              <div id="result-control" class="row">
+                                 <input
+                                    id="ex1"
+                                    data-slider-id="ex1Slider"
+                                    type="text"
+                                    data-slider-min="0"
+                                    data-slider-max="15"
+                                    data-slider-step="1"
+                                    data-slider-value="15"
+                                    />
+                              </div>
+                              
+                           </div>
+                        </div>   
+                     </div>
+                     <div class='row justify-content-md-center align-items-center d-flex h-10'>
+              
+                        <div class = 'col-md-2 justify-content-md-center'>
+                           <button class="styled-button" id="add-mask">New Layer</button>
+                           <button class="styled-button" id="sketch-clear">모든 Layer 삭제</button>
+                         </div>
+                        <div class='col-md-8' id="palette-body">
+                           <div
+                              class="palette-item selected"
+                              id="palette-eraser"
+                              data-class="-1"
+                              style="background-color: #000; border : dashed #000"
+                              >
+                              <img src="/demo/static/components/img/eraser.png" />
+                           </div>
+                        
                         </div>
                      </div>
                   </div>
-                  
-               </div>
-               <div class="col align-self-center ">
-                  <!-- <div class='row justify-content-md-center'>
-                     
-                  </div> -->
-                  <div class="card editor">
-                    <div class="card-body">
-                       <div id="p5-reference-wrapper" class="p5-wrapper">
-                          <div id="p5-reference" class="p5"></div>
-                       </div>
-                    </div>
-                 </div>
-                  
-               </div>
-               <div class="col-md-1 align-self-center" id="main-ui-middle">
-                  <button
-                     type="submit"
-                     class="form-control btn"
-                     id="main-ui-submit"
-                     disabled
-                     >
-                  ➞
-                  </button>
-               </div>
-               <div class="col align-self-center ">
-                 
-                  <div class="card editor">
-                     <div class="card-body">
-                        <div id="p5-right-wrapper" class="p5-wrapper">
-                           <div id="p5-right" class="p5"></div>
-                        </div>
-                     </div>
-                     <div id="result-control" class="row">
-                      <input
-                         id="ex1"
-                         data-slider-id="ex1Slider"
-                         type="text"
-                         data-slider-min="0"
-                         data-slider-max="15"
-                         data-slider-step="1"
-                         data-slider-value="15"
-                         />
-                   </div>
-                     
-                  </div>
+            
                </div>
             </div>
-            <div class="row" id="main-ui-under">
-               
-
-            </div>
+            <div class="row" id="main-ui-under"></div>
          </div>
          <div class='col-md-3 shadow-sm' id='main-column-2'>
             <div id="class-list">

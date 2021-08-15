@@ -7,8 +7,7 @@
     "stylegan2_ckpt": "./network-snapshot-xflip-020643.pkl",
     "truncation_psi": 0.8,
     "direct_manipulation_vector": [
-        "./pose.pt",
-        "./gender.pt"
+        "./pose.pt"
     ],
-    "outdir": "./demo/static/components/img/sketch/random_generated"
+    "outdir": "./demo/static/components/img/random_generated"
 }
