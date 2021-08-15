@@ -32,7 +32,8 @@ sync_flag = true;
 id = null;
 brush_size = 20;
 sf = 1;
-mask_thumnail_size = 75;
+mask_thumnail_size = 55;
+pose_lr = 0
 
 function ReferenceNameSpace() {
   return function (s) {
@@ -82,21 +83,21 @@ function ReferenceNameSpace() {
     };
 
     s.keyPressed = function () {
-      // keyboar r
-      if (s.keyCode === 82) {
-        if (s.rotate_mode) $("#p5-reference").css({ outline: "none" });
-        else $("#p5-reference").css({ outline: "solid" });
-        s.rotate_mode = !s.rotate_mode;
-      }
+      // // keyboar r
+      // if (s.keyCode === 82) {
+      //   if (s.rotate_mode) $("#p5-reference").css({ outline: "none" });
+      //   else $("#p5-reference").css({ outline: "solid" });
+      //   s.rotate_mode = !s.rotate_mode;
+      // }
 
-      // keyboard <>
-      if (s.rotate_mode & (s.keyCode === 188)) {
-        s.rotate_angle -= s.PI / 8;
-      }
+      // // keyboard <>
+      // if (s.rotate_mode & (s.keyCode === 188)) {
+      //   s.rotate_angle -= s.PI / 8;
+      // }
 
-      if (s.rotate_mode & (s.keyCode === 190)) {
-        s.rotate_angle += s.PI / 8;
-      }
+      // if (s.rotate_mode & (s.keyCode === 190)) {
+      //   s.rotate_angle += s.PI / 8;
+      // }
 
       // keyboard []
       if (s.keyCode === 219) {
@@ -190,19 +191,22 @@ function OriginalNameSpace() {
       s.d_y = Array(max_colors).fill(0);
       mousePressed_here = false;
       s.direction_mode = false;
-      let download_button = s.createButton('export');
-      download_button.id('download-button-original')
-      download_button.position($('#defaultCanvas0').width()-60, 5);
 
-      let left_button = s.createButton('<');
-      left_button.id('left-button')
-      left_button.addClass('styled-button lr-button')
-      left_button.position(10, $('#defaultCanvas0').height()/2-10);
+      if (window.location.pathname == '/single'){
+        let download_button = s.createButton('export');
+        download_button.id('download-button-original')
+        download_button.position($('#defaultCanvas0').width()-60, 5);
 
-      let right_button = s.createButton('>');
-      right_button.id('right-button')
-      right_button.addClass('styled-button lr-button')
-      right_button.position($('#defaultCanvas0').height()-30, $('#defaultCanvas0').height()/2-10);
+        let left_button = s.createButton('<');
+        left_button.id('left-button')
+        left_button.addClass('styled-button lr-button')
+        left_button.position(10, $('#defaultCanvas0').height()/2-10);
+
+        let right_button = s.createButton('>');
+        right_button.id('right-button')
+        right_button.addClass('styled-button lr-button')
+        right_button.position($('#defaultCanvas0').height()-30, $('#defaultCanvas0').height()/2-10);
+      }
     };
 
     s.draw = function () {
@@ -232,26 +236,26 @@ function OriginalNameSpace() {
       }
     };
 
-    s.keyPressed = function () {
-      // keyboard press E
-      if (s.keyCode === 69) {
-        if (s.direction_mode) $("#p5-original").css({ outline: "none" });
-        else $("#p5-original").css({ outline: "solid" });
-        s.direction_mode = !s.direction_mode;
-      }
+    // s.keyPressed = function () {
+    //   // keyboard press E
+    //   if (s.keyCode === 69) {
+    //     if (s.direction_mode) $("#p5-original").css({ outline: "none" });
+    //     else $("#p5-original").css({ outline: "solid" });
+    //     s.direction_mode = !s.direction_mode;
+    //   }
 
-      // keyboar left key, right key
-      if (s.direction_mode & (s.keyCode === 37)) {
-        s.yaw_angle -= 4;
-        s.yaw_angle = Math.max(s.yaw_angle, -16);
-        updateOrigin();
-      }
-      if (s.direction_mode & (s.keyCode === 39)) {
-        s.yaw_angle += 4;
-        s.yaw_angle = Math.min(s.yaw_angle, 16);
-        updateOrigin();
-      }
-    };
+    //   // keyboar left key, right key
+    //   if (s.direction_mode & (s.keyCode === 37)) {
+    //     s.yaw_angle -= 4;
+    //     s.yaw_angle = Math.max(s.yaw_angle, -16);
+    //     updateOrigin();
+    //   }
+    //   if (s.direction_mode & (s.keyCode === 39)) {
+    //     s.yaw_angle += 4;
+    //     s.yaw_angle = Math.min(s.yaw_angle, 16);
+    //     updateOrigin();
+    //   }
+    // };
 
     s.mouseReleased = function (e) {
       s.mousePressed_here = false;
@@ -281,8 +285,7 @@ function OriginalNameSpace() {
     };
 
     s.clear_canvas = function () {
-      $("#pose_lr").slider("refresh");
-      // $("#pose_lr").slider("disable");
+      
       s.yaw_angle = 0;
       s.body = null;
 
@@ -406,7 +409,7 @@ function updateOriginRandomGenerateNoise() {
 }
 
 function updateOriginRandom() {
-  let random_seed = $('.random-sample.selected').attr('src').split('/').slice(-1)[0].split('.')[0];
+  let random_seed = $('.random-sample-noise.selected').attr('src').split('/').slice(-1)[0];
   $.ajax({
     type: "POST",
     url: "/post",
@@ -414,8 +417,7 @@ function updateOriginRandom() {
       id: id,
       random_seed:random_seed,
       manipulation : [
-        parseInt($('#pose_lr').val()),
-        parseInt($('#gender').val())
+        pose_lr
       ],
       type: "direct_manipulation"
     }),
@@ -425,6 +427,7 @@ function updateOriginRandom() {
     let url = data['result']
     p5_input_original.updateImage(url);
     original_choose = url;
+    
   });
 }
 
@@ -587,6 +590,24 @@ $(function () {
     enableUI();
   });
 
+  $(document).on('dblclick', 'img.image_picker_image',function(){
+    p5_input_reference.clear_canvas();
+    $(".palette-item-class").remove();
+    pose_lr = 0;
+    mask_selected_index = null;
+    mask_idx = 0;
+    mask_selected_index = 0;
+    selected_class = $("#class-picker option:selected").attr("data-img-src");
+    
+    palette = selected_class;
+    add_new_mask(mask_idx);
+
+    p5_input_reference.updateImage(selected_class);
+    enableUI();
+  });
+
+
+
   $("#add-mask").click(function () {
     mask_idx += 1;
     add_new_mask(mask_idx);
@@ -606,12 +627,10 @@ $(function () {
     $(".palette-item.selected").removeClass("selected");
     $(this).addClass("selected");
   });
-  $("#pose_lr").slider();
-  $("#gender").slider();
-  $("#pose_lr").change(() => updateOriginRandom());
-  $("#gender").change(() => updateOriginRandom());
   
-  $("#firstStep").click(() => updateOriginRandomGenerate());
+  
+  
+  
   
   
   $("#ex0").slider();
@@ -747,6 +766,7 @@ $(function () {
 
   $(document).on('dblclick', '.random-sample-noise',function(){
     url = $('.random-sample-noise.selected').attr('src');
+    pose_lr = 0;
     p5_input_original.updateImage(url);
     original_choose = url;
   });
@@ -755,6 +775,30 @@ $(function () {
     
     $('.random-sample-noise.selected').removeClass('selected');
     $(this).addClass('selected');
+  });
+
+  $(document).on('click', '#right-button',function(){
+    pose_lr += 3;
+    if (pose_lr === 15){
+      $('#right-button').attr('disabled', true);
+    }
+    if (pose_lr > -15){
+      $('#left-button').attr('disabled', false);
+    }
+    updateOriginRandom()
+  });
+
+
+  $(document).on('click', '#left-button',function(){
+    
+    pose_lr -= 3;
+    if (pose_lr === 15){
+      $('#left-button').attr('disabled', true);
+    }
+    if (pose_lr < 15){
+      $('#right-button').attr('disabled', false);
+    }
+    updateOriginRandom()
   });
 
   $(".close").click(()=>{
@@ -778,7 +822,15 @@ $(function () {
     updateOriginRandomGenerateNoise()
   })
 
-  
+  $( document ).ajaxStart(function() {
+    
+    $('html').css("cursor", "wait"); 
+  });
+  //AJAX 통신 종료
+  $( document ).ajaxStop(function() {
+    
+      $('html').css("cursor", "auto"); 
+  });
 });
 
 
