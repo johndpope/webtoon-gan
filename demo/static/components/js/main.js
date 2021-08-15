@@ -190,6 +190,19 @@ function OriginalNameSpace() {
       s.d_y = Array(max_colors).fill(0);
       mousePressed_here = false;
       s.direction_mode = false;
+      let download_button = s.createButton('export');
+      download_button.id('download-button-original')
+      download_button.position($('#defaultCanvas0').width()-60, 5);
+
+      let left_button = s.createButton('<');
+      left_button.id('left-button')
+      left_button.addClass('styled-button lr-button')
+      left_button.position(10, $('#defaultCanvas0').height()/2-10);
+
+      let right_button = s.createButton('>');
+      right_button.id('right-button')
+      right_button.addClass('styled-button lr-button')
+      right_button.position($('#defaultCanvas0').height()-30, $('#defaultCanvas0').height()/2-10);
     };
 
     s.draw = function () {
@@ -287,13 +300,14 @@ function generateOutputNameSpace() {
   return function (s) {
     s.setup = function () {
       s.pixelDensity(1);
-      s.createCanvas(canvas_size, canvas_size);
+      let cvs = s.createCanvas(canvas_size, canvas_size);
 
       s.images = [];
       s.currentImage = 0;
       let download_button = s.createButton('export');
       download_button.id('download-button')
-      download_button.position(300,6);
+      download_button.position($('#defaultCanvas2').width()-60, 5);
+      // download_button.parent(cvs)
     };
 
     s.draw = function () {
@@ -358,12 +372,10 @@ function updateOriginRandomGenerate() {
     contentType: "application/json",
   }).done(function (data, textStatus, jqXHR) {
     let paths = data["result"];
-    for(let i = 0 ; i < paths.length ; i++){
-      console.log(paths[i])
-      $("#randomSampleGenerated").append(
-        `<img class='random-sample rounded' src='${paths[i]}' />` 
-      )
-    }
+  
+    $('.random-sample').each((i, d)=>{
+      $(d).attr('src', paths[i]);
+    })
     // p5_input_original.updateImage(url);
     // original_choose = url;
   });
@@ -385,12 +397,11 @@ function updateOriginRandomGenerateNoise() {
     contentType: "application/json",
   }).done(function (data, textStatus, jqXHR) {
     let paths = data["result"];
-    for(let i = 0 ; i < paths.length ; i++){
-      console.log(paths[i])
-      $("#randomSampleGeneratedNoise").append(
-        `<img class='random-sample-noise rounded' src='${paths[i]}' />` 
-      )
-    }
+
+    $('.random-sample-noise').each((i, d)=>{
+      $(d).attr('src', paths[i]);
+    })
+
   });
 }
 
@@ -601,7 +612,7 @@ $(function () {
   $("#gender").change(() => updateOriginRandom());
   
   $("#firstStep").click(() => updateOriginRandomGenerate());
-  $("#secondStep").click(() => updateOriginRandomGenerateNoise());
+  
   
   $("#ex0").slider();
   $("#ex1").slider({
@@ -703,6 +714,20 @@ $(function () {
     link.href = image;
     link.click();
   });
+
+  // Image Download
+  $(document).on('click', '#download-button-original', function () {
+    
+  var canvas = $("#p5-original canvas").get()[0];
+  image = canvas
+    .toDataURL("image/png")
+    .replace("image/png", "image/octet-stream");
+  var link = document.createElement("a");
+  link.download = "edited.png";
+  link.href = image;
+  link.click();
+});
+
   $(function () {
     $('[data-toggle="popover"]').popover();
   });
@@ -712,6 +737,18 @@ $(function () {
     
     $('.random-sample.selected').removeClass('selected');
     $(this).addClass('selected');
+  });
+
+  $(document).on('dblclick', '.random-sample',function(){
+    
+    updateOriginRandomGenerateNoise()
+    
+  });
+
+  $(document).on('dblclick', '.random-sample-noise',function(){
+    url = $('.random-sample-noise.selected').attr('src');
+    p5_input_original.updateImage(url);
+    original_choose = url;
   });
 
   $(document).on('click', '.random-sample-noise',function(){
@@ -728,12 +765,16 @@ $(function () {
   })
 
   $('.again').click(()=>{
-    $('#randomSampleGenerated').empty()
+    updateOriginRandomGenerate()
+  })
+
+  $('.submit').click(()=>{
+    console.log('hello')
     updateOriginRandomGenerate()
   })
 
   $('.again-noise').click(()=>{
-    $('#randomSampleGeneratedNoise').empty()
+    // $('#randomSampleGeneratedNoise').empty()
     updateOriginRandomGenerateNoise()
   })
 
