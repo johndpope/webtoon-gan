@@ -108,6 +108,16 @@ def single():
     )
 
 
+@app.route("/single2")
+def single2():
+    image_paths = []
+    return render_template(
+        "single2.html",
+        canvas_size=canvas_size,
+        base_path=base_path,
+        image_paths=list(os.walk(base_path)),
+    )
+
 # "#010FFF" -> (1, 15, 255)
 def hex2val(hex):
     if len(hex) != 7:
@@ -216,7 +226,7 @@ def post():
         elif request.json['type'] == 'random_generate_noise':
             paths = []
             rand = request.json['random_seed']
-            for rand_size in np.linspace(0, 0.75, num=15, endpoint=False):
+            for rand_size in np.linspace(0, 0.75, num=25, endpoint=False):
                 rand_noise = np.random.randint(0, 2**31-1, 1)[0]
                 path = generate_image(args['stylegan2_ckpt'],  rand, args['truncation_psi'], (rand_noise, rand_size), args['outdir'])
                 paths.append(path)
