@@ -192,21 +192,21 @@ function OriginalNameSpace() {
       mousePressed_here = false;
       s.direction_mode = false;
 
-      if (window.location.pathname == '/single'){
-        let download_button = s.createButton('export');
-        download_button.id('download-button-original')
-        download_button.position($('#defaultCanvas0').width()-60, 5);
+      // if (window.location.pathname == '/single'){
+      //   let download_button = s.createButton('export');
+      //   download_button.id('download-button-original')
+      //   download_button.position($('#defaultCanvas0').width()-60, 5);
 
-        let left_button = s.createButton('<');
-        left_button.id('left-button')
-        left_button.addClass('styled-button lr-button')
-        left_button.position(10, $('#defaultCanvas0').height()/2-10);
+      //   let left_button = s.createButton('<');
+      //   left_button.id('left-button')
+      //   left_button.addClass('styled-button lr-button')
+      //   left_button.position(10, $('#defaultCanvas0').height()/2-10);
 
-        let right_button = s.createButton('>');
-        right_button.id('right-button')
-        right_button.addClass('styled-button lr-button')
-        right_button.position($('#defaultCanvas0').height()-30, $('#defaultCanvas0').height()/2-10);
-      }
+      //   let right_button = s.createButton('>');
+      //   right_button.id('right-button')
+      //   right_button.addClass('styled-button lr-button')
+      //   right_button.position($('#defaultCanvas0').height()-30, $('#defaultCanvas0').height()/2-10);
+      // }
     };
 
     s.draw = function () {
@@ -379,8 +379,10 @@ function updateOriginRandomGenerate() {
     $('.random-sample').each((i, d)=>{
       $(d).attr('src', paths[i]);
     })
-    // p5_input_original.updateImage(url);
-    // original_choose = url;
+    url = $('.random-sample.selected').attr('src');
+    p5_input_original.updateImage(url);
+    original_choose = url;
+    updateOriginRandomGenerateNoise()
   });
 }
 
@@ -404,7 +406,10 @@ function updateOriginRandomGenerateNoise() {
     $('.random-sample-noise').each((i, d)=>{
       $(d).attr('src', paths[i]);
     })
-
+    url = $('.random-sample-noise.selected').attr('src');
+    p5_input_original.updateImage(url);
+    original_choose = url;
+    
   });
 }
 
@@ -801,20 +806,14 @@ $(function () {
     updateOriginRandom()
   });
 
-  $(".close").click(()=>{
-    
-    url = $('.random-sample-noise.selected').attr('src');
-    p5_input_original.updateImage(url);
-    original_choose = url;
-  })
-
   $('.again').click(()=>{
     updateOriginRandomGenerate()
+    
   })
 
   $('.submit').click(()=>{
-    console.log('hello')
     updateOriginRandomGenerate()
+    
   })
 
   $('.again-noise').click(()=>{
@@ -822,18 +821,21 @@ $(function () {
     updateOriginRandomGenerateNoise()
   })
 
-  $( document ).ajaxStart(function() {
+  for(let i = 0 ; i < 3 ; i++){
+    $(`#sefa${i}`).slider()
+  } 
+  // $( document ).ajaxStart(function() {
     
-    $('html').css("cursor", "wait"); 
-    $('.waiting-modal').modal('show');
-
-  });
-  //AJAX 통신 종료
-  $( document ).ajaxStop(function() {
+  //   // $('html').css("cursor", "wait"); 
+  //   $('.waiting-modal').modal('show');
     
-      $('html').css("cursor", "auto"); 
-      $('.waiting-modal').modal('hide');
-  });
+  // });
+  // //AJAX 통신 종료
+  // $( document ).ajaxComplete(function() {
+  //   $('.waiting-modal').modal('hide');
+  //     // $('html').css("cursor", "auto"); 
+      
+  // });
 });
 
 

@@ -179,17 +179,14 @@ def my_morphed_images(original, references, masks, shift_values, interpolation=8
 
     return mixed
 
-def generate_image(
-    
-    network_pkl: str,
+def generate_image(    
+    G,
     seed,
     truncation_psi: float,
     noise_strength,
     outdir: str,
     add_vector = None
     ):
-    with dnnlib.util.open_url(network_pkl) as f:
-        G = legacy.load_network_pkl(f)['G_ema'].to(device) # type: ignore
 
     os.makedirs(outdir, exist_ok=True)
     
@@ -198,12 +195,48 @@ def generate_image(
     z += noise_strength[1] * torch.from_numpy(np.random.RandomState(noise_strength[0]).randn(1, G.z_dim)).to(device)
     if add_vector is not None:
         z += torch.from_numpy(add_vector).to(device)
+    
     img = G(z, label, truncation_psi=truncation_psi, noise_mode='const')
     img = (img.permute(0, 2, 3, 1) * 127.5 + 128).clamp(0, 255).to(torch.uint8)[0].cpu().numpy()
     path = f'{outdir}/{seed:04d}-{noise_strength[0]:04d}-{noise_strength[1]:.3f}-{np.random.rand(1)}.png'
     
     Image.fromarray(img, 'RGB').save(path)
     return path
+    
+def generate_images(
+    G,
+    N,
+    seed,
+    truncation_psi,
+    noise_strength,
+    outdir):
+     
+    print(outdir)
+    os.makedirs(outdir, exist_ok=True)
+    
+
+    label = torch.zeros([N, G.c_dim], device=device)
+    if len(seed) == 1:
+        z = torch.from_numpy(np.random.RandomState(seed[0]).randn(1, G.z_dim)).repeat(N, 1).to(device)
+    else:
+        z =  torch.from_numpy(np.vstack([np.random.RandomState(random_seed).randn(1, G.z_dim) for random_seed in seed])).to(device)
+    
+    random_vectors = np.vstack([np.random.RandomState(random_seed).randn(1, G.z_dim) for random_seed in noise_strength[0]])
+    
+    z +=  torch.from_numpy(random_vectors * noise_strength[1].reshape(-1, 1)).to(device)
+    
+    img = G(z, label, truncation_psi=truncation_psi, noise_mode='const')
+    
+    img = (img.permute(0, 2, 3, 1) * 127.5 + 128).clamp(0, 255).to(torch.uint8).cpu().numpy()
+    paths = []
+    for idx in range(N):
+        print(idx)
+        seed_name = seed[idx] if len(seed) != 1 else seed[0]
+        path = f'{outdir}/{seed_name:04d}-{noise_strength[0][idx]:04d}-{noise_strength[1][idx]:.3f}-{np.random.rand(1)}.png'
+        Image.fromarray(img[idx], 'RGB').save(path)
+        paths.append(path)
+    
+    return paths
     
 
 
@@ -218,33 +251,28 @@ def post():
             os.makedirs(save_dir, exist_ok=True)
         
         if request.json['type'] == 'random_generate':
-            paths = []
-            for i in range(6):
-                rand = np.random.randint(0, 2**31-1, 1)[0]
-                path = generate_image(args['stylegan2_ckpt'],  rand, args['truncation_psi'],  (0, 0), args['outdir'])
-                paths.append(path)
-        
+            N = 6
+            rand = np.random.randint(0, 2**31-1, N)
+            paths = generate_images(G, N, rand, args['truncation_psi'], (np.zeros(N).astype(int), np.zeros(N)), args['outdir'])
             return flask.jsonify(result=paths)
+
         elif request.json['type'] == 'random_generate_noise':
-            paths = []
             rand = request.json['random_seed']
-            for rand_size in np.linspace(0, 0.80, num=20, endpoint=False):
-                rand_noise = np.random.randint(0, 2**31-1, 1)[0]
-                path = generate_image(args['stylegan2_ckpt'],  rand, args['truncation_psi'], (rand_noise, rand_size), args['outdir'])
-                paths.append(path)
+            N = 20
+            rand_sizes =  np.linspace(0, 0.80, num=N, endpoint=False)
+            rand_noise_seed = np.random.randint(0, 2**31-1, N)
+            paths = generate_images(G, N, [rand], args['truncation_psi'], (rand_noise_seed, rand_sizes), args['outdir'])
+            
             
             return flask.jsonify(result=paths)
 
         elif request.json['type'] == 'direct_manipulation':
-            print(request.json['random_seed'].split('-'))
+            
             rand, rand_noise, rand_size, rand_hash = request.json['random_seed'].split('-')
             manipulation_size = request.json['manipulation']
-            
-            print(direct_manipulation_vectors.shape)
-            print(np.array(manipulation_size).reshape(-1, 1))
             dmv_total = np.sum(direct_manipulation_vectors*np.array(manipulation_size).reshape(-1, 1) , axis=0)
-            print(dmv_total.shape)
-            path = generate_image(args['stylegan2_ckpt'], int(rand), args['truncation_psi'], (int(rand_noise), float(rand_size)), args['outdir'], dmv_total)
+            
+            path = generate_image(G, int(rand), args['truncation_psi'], (int(rand_noise), float(rand_size)), args['outdir'], dmv_total)
             return flask.jsonify(result=path)
 
         
@@ -335,7 +363,9 @@ if __name__ == "__main__":
     base_path = f"demo/static/components/img/{args['dataset']}/"
     
     canvas_size = 256
-
+    
+    with dnnlib.util.open_url(args['stylegan2_ckpt']) as f:
+        G = legacy.load_network_pkl(f)['G_ema'].to(device)
     # StyleMapGAN
     ckpt = torch.load(args['stylemapgan_ckpt'])
     model = Model(ckpt["train_args"]).to(device)
