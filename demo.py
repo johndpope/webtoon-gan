@@ -346,8 +346,8 @@ if __name__ == "__main__":
     print('Import Sketch Model')
     sketch_model = None
     rand = 0
-    graph = tf.get_default_graph()
-    sketch_model = load_model('./sketch_model.h5')
+    # graph = tf.get_default_graph()
+    # sketch_model = load_model('./sketch_model.h5')
     # sketch_model._make_predict_function()
     print('Success.')
     
@@ -361,8 +361,8 @@ if __name__ == "__main__":
     print((direct_manipulation_vectors * np.array([3]).reshape(-1, 1)).shape)
     
     app.run(host="127.0.0.1", port=7000,
-    # debug=True,
-     debug=False, 
+    debug=True,
+    #  debug=False, 
     threaded=False
      
      )

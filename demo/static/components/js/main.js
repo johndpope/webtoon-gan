@@ -825,11 +825,14 @@ $(function () {
   $( document ).ajaxStart(function() {
     
     $('html').css("cursor", "wait"); 
+    $('.waiting-modal').modal('show');
+
   });
   //AJAX 통신 종료
   $( document ).ajaxStop(function() {
     
       $('html').css("cursor", "auto"); 
+      $('.waiting-modal').modal('hide');
   });
 });
 
