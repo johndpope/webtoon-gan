@@ -63,7 +63,7 @@
                         </div>   
                      </div>
                      <div class='row justify-content-md-center align-items-center d-flex h-10'>
-              
+                        
                         <div class = 'col-md-2 justify-content-md-center'>
                            <button class="styled-button" id="add-mask">New Layer</button>
                            <button class="styled-button" id="sketch-clear">모든 Layer 삭제</button>
@@ -87,14 +87,31 @@
             <div class="row" id="main-ui-under"></div>
          </div>
          <div class='col-md-3 shadow-sm' id='main-column-2'>
+            <div class='card random-generate'>
+               <div class='card-header'><b>Step</b> 수정가능한 이미지나 일반 이미지를 선택하실 수 있습니다.</div>
+            </div>
             <div id="class-list">
               <button type="submit" class="styled-button" id="class-picker-submit-original">Original</button>
               <button type="submit" class="styled-button" id="class-picker-submit-reference">Reference</button>
+              
+              <label class="item-img center-block file styled-button" for="input-file">
+               커스텀 이미지 추가
+             </label>
+             <input type="file" id="input-file" style="display:none" />
+
+                        
+              <div class='row'>
               <select
-                  class="image-picker show-html form-control col-md-6"
+                  class="image-picker show-html form-control"
                   id="class-picker"
                   ></select>
-
+               </div>
+               <div class='row'>
+               <select
+               class="image-picker show-html form-control"
+               id="class-picker"
+               ></select>
+               </div>
               
             
               <label class="cabinet center-block">

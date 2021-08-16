@@ -36,6 +36,8 @@ import io
 
 import legacy
 import cv2
+
+import tensorflow as tf
 from tensorflow.keras.models import load_model
 
 app = Flask(
@@ -309,6 +311,7 @@ def post():
             # im_predict = ((im_predict/255)*220)/255
             im_predict = im_predict.astype(np.float32) * 0.003383
 
+            # with graph.as_default():
             result = sketch_model.predict(im_predict, batch_size=1)[0]
 
             im_res = (result - np.mean(result) + 1.) * 255
@@ -343,7 +346,9 @@ if __name__ == "__main__":
     print('Import Sketch Model')
     sketch_model = None
     rand = 0
-    # sketch_model = load_model('sketch_model.h5')
+    graph = tf.get_default_graph()
+    sketch_model = load_model('./sketch_model.h5')
+    # sketch_model._make_predict_function()
     print('Success.')
     
     direct_manipulation_vectors = [] 
@@ -354,5 +359,10 @@ if __name__ == "__main__":
     direct_manipulation_vectors  = np.vstack(direct_manipulation_vectors)
     
     print((direct_manipulation_vectors * np.array([3]).reshape(-1, 1)).shape)
-    app.debug = True
-    app.run(host="127.0.0.1", port=7000)
+    
+    app.run(host="127.0.0.1", port=7000,
+    # debug=True,
+     debug=False, 
+    threaded=False
+     
+     )
