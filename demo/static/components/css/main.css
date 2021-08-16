@@ -340,3 +340,8 @@ fieldset legend {
 #p5-reference{
   outline: #FF9500 solid 2px;
 }
+
+.file{
+  cursor : pointer;
+  padding : 1px;
+}
