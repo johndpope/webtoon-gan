@@ -345,3 +345,12 @@ fieldset legend {
   cursor : pointer;
   padding : 1px;
 }
+
+.modal-waiting-content{
+  background-color :rgba(0, 0, 0, 0.0);
+  border : none;
+}
+
+.modal { 
+  background-color :rgba(0, 0, 0, 0.6);
+}

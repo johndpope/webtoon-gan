@@ -103,5 +103,28 @@
       </div>
     </nav>
     {% block content %}{% endblock %}
+    <div class="waiting-modal modal fade bd-example-modal-lg" data-backdrop="static" data-keyboard="false" tabindex="-1">
+      <div class="modal-dialog modal-lg modal-dialog-centered">
+          <div class="modal-content modal-waiting-content">
+            <div class='modal-body justify-content-center'>
+              
+            
+              <div>
+                <h2 class='text-light'>요청한 작업을 처리중입니다.</h2>
+                <p class='text-light'>잠시만 기다려주세요.</p>
+              </div>
+              <hr>
+              <div>
+                <div class='spinner-border text-light style="width: 3rem; height: 3rem;"' role="status">
+                  <span class="sr-only">Loading...</span>
+                </div>
+              </div>
+            
+            
+            </div>
+          </div>
+      </div>
+    </div>
+  
   </body>
 </html>

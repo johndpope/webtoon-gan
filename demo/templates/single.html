@@ -72,7 +72,7 @@
                      <div class="card-body " id='randomSampleGenerated'>
                            <div class='row h-100 justify-content-md-center align-items-center d-flex '>
                               <div class='col-md-3'>
-                                 <img class='random-sample' onerror="this.style.display='none'"/>
+                                 <img class='random-sample selected' onerror="this.style.display='none'"/>
                                  <img class='random-sample' onerror="this.style.display='none'"/>
                               </div>
                               <div class='col-md-3'>
@@ -103,7 +103,7 @@
                      <div class="card-body " id='randomSampleGeneratedNoise'>
                         <div class='row h-100 justify-content-md-center align-items-center d-flex '>
                            <div class='col-md-2'>
-                              <img class='random-sample-noise' onerror="this.style.display='none'"/>
+                              <img class='random-sample-noise selected' onerror="this.style.display='none'"/>
                               <img class='random-sample-noise' onerror="this.style.display='none'"/>
                               <img class='random-sample-noise' onerror="this.style.display='none'"/>
                               <img class='random-sample-noise' onerror="this.style.display='none'"/>
@@ -147,14 +147,39 @@
                   </div>
                   <div class='card-body'>
                      <div class='row justify-content-md-center align-items-center d-flex h-90'>
-                        <div class="col-md-3 align-self-center">
+                        <div class="col-md-2 align-self-center" id="main-ui-middle">
+                           <input
+                                    id="sefa0"
+                                    data-slider-id="sefa0Slider"
+                                    type="text"
+                                    data-slider-min="0"
+                                    data-slider-max="15"
+                                    data-slider-step="1"
+                                    data-slider-value="15"
+                                    />
+
+                           <br>
+                           <input
+                                    id="sefa1"
+                                    data-slider-id="sefa1Slider"
+                                    type="text"
+                                    data-slider-min="0"
+                                    data-slider-max="15"
+                                    data-slider-step="1"
+                                    data-slider-value="15"
+                                    />      
+
+
+                        </div>
+                        <div class="col align-self-center">
                            
                            <div id="p5-original-wrapper" class="p5-wrapper">
                               <div id="p5-original" class="p5"></div>
                            </div>
                      
                         </div>
-                        <div class="col-md-3 align-self-center ">
+                        
+                        <div class="col align-self-center ">
                            
                            <div class="card editor">
                               <div class="card-body">
@@ -165,6 +190,7 @@
                            </div>
                            
                         </div>
+                        
                         <div class="col-md-1 align-self-center" id="main-ui-middle">
                            <button
                               type="submit"
@@ -175,7 +201,7 @@
                            ➞
                            </button>
                         </div>
-                        <div class="col-md-3 align-self-center ">
+                        <div class="col align-self-center ">
                            
                            <div class="card editor">
                               <div class="card-body">
@@ -203,8 +229,9 @@
                         <div class = 'col-md-2 justify-content-md-center'>
                            <button class="styled-button" id="add-mask">New Layer</button>
                            <button class="styled-button" id="sketch-clear">모든 Layer 삭제</button>
+                           <button class="styled-button" id="mask-clear">현재 Layer 초기화</button>
                          </div>
-                        <div class='col-md-8' id="palette-body">
+                        <div class='col-md-6' id="palette-body">
                            <div
                               class="palette-item selected"
                               id="palette-eraser"
