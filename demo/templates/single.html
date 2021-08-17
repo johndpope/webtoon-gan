@@ -67,7 +67,9 @@
                         <button class="styled-button again regenerate" >
                            다시 만들기 <i class="fas fa-redo"></i>
                         </button>
-                        
+                        <button class="styled-button temp-save" >
+                           임시저장 <i class="fas fa-archive"></i>
+                        </button>
                      </div>
                      <div class="card-body " id='randomSampleGenerated'>
                            <div class='row h-100 justify-content-md-center align-items-center d-flex '>
@@ -113,6 +115,10 @@
                         <button class="styled-button again-noise regenerate" >
                            다시 만들기 <i class="fas fa-redo"></i>
                         </button>
+
+                        <button class="styled-button temp-save-noise" >
+                           임시저장 <i class="fas fa-archive"></i>
+                        </button>
                         
                      </div>
                      <div class="card-body " id='randomSampleGeneratedNoise'>
@@ -157,22 +163,24 @@
                   <div class='card h-100'>
                      <div class='card-header'>
                         <b>Step 4</b>. 생성된 이미지의 다양한  조정과 합성을 통해 최종 이미지를 만들 수 있습니다. (중간 이미지에 합성하고 싶은 부분을 색칠하고 화살표 버튼(➞)을 클릭해주세요.)
+                        <button class="styled-button" id='comment-export'>
+                           내보내기 <i class="fas fa-redo"></i>
+                        </button>
+
                      </div>
-                     <div class='card-body'>
+                     <div class='card-body' id='detail-comment'>
                         <div class='row justify-content-md-center align-items-center d-flex h-10'>
                            <div class='col align-self-center'>
                            <div class="input-group">
                               
                               <input type="text" class="form-control" placeholder="수정 요청 내용을 적어주세요" aria-label="character-description">
-                              <div class="input-group-append">
-                                 <button class="btn btn-outline-secondary" type="button">전체 수정 요청 내보내기</button>
-                               </div>
+                              
                             </div>
                             </div>
                         </div>
                         <div class='row justify-content-md-center align-items-center d-flex h-80'>
                            
-                           <div class="col align-self-center">
+                           <div class="col-md-3 align-self-center">
                               
                               <div id="p5-original-wrapper" class="p5-wrapper">
                                  <div id="p5-original" class="p5"></div>
@@ -180,7 +188,7 @@
                         
                            </div>
                            
-                           <div class="col align-self-center ">
+                           <div class="col-md-3 align-self-center ">
                               
                               <div class="card editor">
                                  <div class="card-body">
@@ -191,88 +199,105 @@
                               </div>
                               
                            </div>
-                           <div class="col-md-2 align-self-center" id="main-ui-middle">
-                              <div class='row'>
-                                 <div class='col-md-2'>
-                                    <input
-                                             id="sefa0"
-                                             data-slider-id="sefa0Slider"
-                                             type="text"
-                                             data-slider-min="0"
-                                             data-slider-max="15"
-                                             data-slider-step="1"
-                                             data-slider-value="15"
-                                             data-slider-orientation="vertical"
-                                             />
-                                 </div>
-                                 
-                                 <div class='col-md-2'>
-                                    <input
-                                             id="sefa1"
-                                             data-slider-id="sefa1Slider"
-                                             type="text"
-                                             data-slider-min="0"
-                                             data-slider-max="15"
-                                             data-slider-step="1"
-                                             data-slider-value="15"
-                                             data-slider-orientation="vertical"
-                                             />
-         
-                                 </div>
+                           <div class='col-md-3 align-self-center'>
+                              <div class='row justify-content-md-center align-items-center d-flex'>
+                                 <div class="col-md-9 align-self-center" >
+                                    <div class='row justify-content-md-center align-items-center d-flex'>
+                                       <div class='col-md-2 align-self-center'>
+                                          <img class='sefa-image' onerror="this.style.display='none'"/>
+                                          <input
+                                                   id="sefa0"
+                                                   class='sefa-slider'
+                                                   data-slider-id="sefa0Slider"
+                                                   type="text"
+                                                   data-slider-min="-10"
+                                                   data-slider-max="10"
+                                                   data-slider-step="2"
+                                                   data-slider-value="0"
+                                                   data-slider-orientation="vertical"
+                                                   />
+                                          <img class='sefa-image' onerror="this.style.display='none'"/>
+                                       </div>
+                                       
+                                       <div class='col-md-2 align-self-center'>
+                                          <img class='sefa-image' onerror="this.style.display='none'"/>
+                                          <input
+                                                   id="sefa1"
+                                                   class='sefa-slider'
+                                                   data-slider-id="sefa1Slider"
+                                                   type="text"
+                                                   data-slider-min="-10"
+                                                   data-slider-max="10"
+                                                   data-slider-step="2"
+                                                   data-slider-value="0"
+                                                   data-slider-orientation="vertical"
+                                                   />
+                                          <img class='sefa-image' onerror="this.style.display='none'"/>
+               
+                                       </div>
 
-                                 <div class='col-md-2'>
-                                    <input
-                                             id="sefa2"
-                                             data-slider-id="sefa2Slider"
-                                             type="text"
-                                             data-slider-min="0"
-                                             data-slider-max="15"
-                                             data-slider-step="1"
-                                             data-slider-value="15"
-                                             data-slider-orientation="vertical"
-                                             />
-         
-                                 </div>
+                                       <div class='col-md-2 align-self-center'>
+                                          <img class='sefa-image' onerror="this.style.display='none'"/>
+                                          <input
+                                                   id="sefa2"
+                                                   class='sefa-slider'
+                                                   data-slider-id="sefa2Slider"
+                                                   type="text"
+                                                   data-slider-min="-10"
+                                                   data-slider-max="10"
+                                                   data-slider-step="2"
+                                                   data-slider-value="0"
+                                                   data-slider-orientation="vertical"
+                                                   />
+                                          <img class='sefa-image' onerror="this.style.display='none'"/>
+               
+                                       </div>
 
-                                 <div class='col-md-2'>
-                                    <input
-                                             id="sefa3"
-                                             data-slider-id="sefa3Slider"
-                                             type="text"
-                                             data-slider-min="0"
-                                             data-slider-max="15"
-                                             data-slider-step="1"
-                                             data-slider-value="15"
-                                             data-slider-orientation="vertical"
-                                             />
-         
+                                       <div class='col-md-2 align-self-center'>
+                                          <img class='sefa-image' onerror="this.style.display='none'"/>
+                                          <input
+                                                   id="sefa3"
+                                                   class='sefa-slider'
+                                                   data-slider-id="sefa3Slider"
+                                                   type="text"
+                                                   data-slider-min="-10"
+                                                   data-slider-max="10"
+                                                   data-slider-step="2"
+                                                   data-slider-value="0"
+                                                   data-slider-orientation="vertical"
+                                                   />
+                                          <img class='sefa-image' onerror="this.style.display='none'"/>
+                                       </div>
+                                       <div class='col-md-2 align-self-center'>
+                                          <img class='sefa-image' onerror="this.style.display='none'"/>
+                                          <input
+                                                   id="sefa4"
+                                                   class='sefa-slider'
+                                                   data-slider-id="sefa4Slider"
+                                                   type="text"
+                                                   data-slider-min="-10"
+                                                   data-slider-max="10"
+                                                   data-slider-step="2"
+                                                   data-slider-value="0"
+                                                   data-slider-orientation="vertical"
+                                                   />
+                                          <img class='sefa-image' onerror="this.style.display='none'"/>
+                                       </div>
+                                    </div>
                                  </div>
-                                 <div class='col-md-2'>
-                                    <input
-                                             id="sefa4"
-                                             data-slider-id="sefa4Slider"
-                                             type="text"
-                                             data-slider-min="0"
-                                             data-slider-max="15"
-                                             data-slider-step="1"
-                                             data-slider-value="15"
-                                             data-slider-orientation="vertical"
-                                             />
-         
+                                 <div class="col-md-3 align-self-center" >
+                                    <button
+                                       type="submit"
+                                       class="form-control btn"
+                                       id="main-ui-submit"
+                                       disabled
+                                       >
+                                    ➞
+                                    </button>
                                  </div>
                               </div>
                            </div>
-                           <div class="col-md-1 align-self-center" id="main-ui-middle">
-                              <button
-                                 type="submit"
-                                 class="form-control btn"
-                                 id="main-ui-submit"
-                                 disabled
-                                 >
-                              ➞
-                              </button>
-                           </div>
-                           <div class="col align-self-center ">
+                           <div class="col-md-3 align-self-center ">
                               
                               <div class="card editor">
                                  <div class="card-body">
@@ -367,12 +392,17 @@
             </div>
             <div class="row justify-content-md-center align-items-center d-flex main-ui-middle " id="main-ui">
                <div class="col align-self-center random-setting">
-               <div class='card h-100'>
-                  <div class='card-header'><b>임시저장</b></div>
-                  <div class='card-body'>
-                    
+                  <div class='card h-100'>
+                     <div class='card-header'><b>임시저장</b> <i class="fas fa-archive"></i></div>
+                     <div class='card-body' id='temp-save-box'>
+
+                        <!-- <div class='row justify-content-md-center align-items-center'>
+                           <div class='col-md-6'>
+
+                           </div>
+                        </div> -->
+                     </div>
                   </div>
-               </div>
                </div>
             </div>
          </div>

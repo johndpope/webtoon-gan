@@ -460,11 +460,37 @@ function updateOriginRandomGenerateNoise() {
     add_new_mask(mask_idx);
 
     p5_input_reference.updateImage(selected_class);
+    updateDirectManipulateExample()
   });
 }
 
-function updateOriginRandom() {
-  let random_seed = $('.random-sample-noise.selected').attr('src').split('/').slice(-1)[0];
+function updateDirectManipulateExample() {
+  let random_seed = selected_class.split('/').slice(-1)[0];
+  // random_seed = parseInt($('.random-sample.selected').attr('src').split('/').slice(-1)[0].split('.')[0]);
+  
+  $.ajax({
+    type: "POST",
+    url: "/post",
+    data: JSON.stringify({
+      id: id,
+      random_seed:random_seed,
+      type: "direct_manipulation_example"
+    }),
+    dataType: "json",
+    contentType: "application/json",
+  }).done(function (data, textStatus, jqXHR) {
+    let paths = data["result"];
+    console.log(paths)
+    $('.sefa-image').each((i, d)=>{
+      $(d).attr('src', paths[i]);
+    })
+   
+  });
+}
+
+
+function updateDirectManipulate() {
+  let random_seed = selected_class.split('/').slice(-1)[0];
   $.ajax({
     type: "POST",
     url: "/post",
@@ -472,7 +498,11 @@ function updateOriginRandom() {
       id: id,
       random_seed:random_seed,
       manipulation : [
-        pose_lr
+        parseInt($('#sefa0').val()),
+        parseInt($('#sefa1').val()),
+        parseInt($('#sefa2').val()),
+        parseInt($('#sefa3').val()),
+        parseInt($('#sefa4').val()),
       ],
       type: "direct_manipulation"
     }),
@@ -480,8 +510,19 @@ function updateOriginRandom() {
     contentType: "application/json",
   }).done(function (data, textStatus, jqXHR) {
     let url = data['result']
-    p5_input_original.updateImage(url);
-    original_choose = url;
+    
+    p5_input_reference.clear_canvas();
+    $(".palette-item-class").remove();
+    pose_lr = 0;
+    mask_selected_index = null;
+    mask_idx = 0;
+    mask_selected_index = 0;
+    // selected_class = url;
+    p5_input_reference.updateImage(url);
+    
+    palette = url;
+    add_new_mask(mask_idx);
+
     
   });
 }
@@ -680,6 +721,10 @@ $(function () {
     p5_output.changeCurrentImage(parseInt($("#ex1").val()));
   });
 
+  
+  
+  
+
   p5_input_reference = new p5(ReferenceNameSpace(), "p5-reference");
   p5_input_original = new p5(OriginalNameSpace(), "p5-original");
   p5_output = new p5(generateOutputNameSpace(), "p5-right");
@@ -814,6 +859,7 @@ $(function () {
     add_new_mask(mask_idx);
 
     p5_input_reference.updateImage(selected_class);
+    updateDirectManipulateExample()
   });
 
   $(document).on('click', '.random-sample-noise',function(){
@@ -822,29 +868,29 @@ $(function () {
     $(this).addClass('selected');
   });
 
-  $(document).on('click', '#right-button',function(){
-    pose_lr += 3;
-    if (pose_lr === 15){
-      $('#right-button').attr('disabled', true);
-    }
-    if (pose_lr > -15){
-      $('#left-button').attr('disabled', false);
-    }
-    updateOriginRandom()
-  });
+  // $(document).on('click', '#right-button',function(){
+  //   pose_lr += 3;
+  //   if (pose_lr === 15){
+  //     $('#right-button').attr('disabled', true);
+  //   }
+  //   if (pose_lr > -15){
+  //     $('#left-button').attr('disabled', false);
+  //   }
+  //   updateOriginRandom()
+  // });
 
 
-  $(document).on('click', '#left-button',function(){
+  // $(document).on('click', '#left-button',function(){
     
-    pose_lr -= 3;
-    if (pose_lr === 15){
-      $('#left-button').attr('disabled', true);
-    }
-    if (pose_lr < 15){
-      $('#right-button').attr('disabled', false);
-    }
-    updateOriginRandom()
-  });
+  //   pose_lr -= 3;
+  //   if (pose_lr === 15){
+  //     $('#left-button').attr('disabled', true);
+  //   }
+  //   if (pose_lr < 15){
+  //     $('#right-button').attr('disabled', false);
+  //   }
+  //   updateOriginRandom()
+  // });
 
   $('.again').click(()=>{
     updateOriginRandomGenerate()
@@ -864,6 +910,7 @@ $(function () {
 
   for(let i = 0 ; i < 5 ; i++){
     $(`#sefa${i}`).slider()
+    $(`#sefa${i}`).change(()=>updateDirectManipulate())
   } 
   // $( document ).ajaxStart(function() {
     
@@ -877,6 +924,52 @@ $(function () {
   //     // $('html').css("cursor", "auto"); 
       
   // });
+  let output = $('#temp-save-box')
+  $('.temp-save').click(function() {
+    let imageClone = $('.random-sample.selected').clone().attr('class', 'temp-save-img');
+    output.append(imageClone);
+    
+  });
+
+  $('.temp-save-noise').click(function() {
+    let imageClone = $('.random-sample-noise.selected').clone().attr('class', 'temp-save-img');
+    output.append(imageClone);
+    
+  });
+
+  output.on('click', 'img', function() {
+      var image = $(this);
+      
+      image.remove();
+      
+  });
+
+  function takeshot() {
+    let div = document.getElementById('detail-comment'); // $('#detail-comment');
+    console.log(div)
+    // Use the html2canvas
+    // function to take a screenshot
+    // and append it
+    // to the output div
+    html2canvas(div).then(
+        function (canvas) {
+          console.log('hello')
+          let image = canvas
+          .toDataURL("image/png")
+          .replace("image/png", "image/octet-stream");
+            let link = document.createElement("a");
+            link.download = "comment.png";
+            link.href = image;
+            link.click();
+
+        })
+  }
+  $('#comment-export').click(()=>{
+
+    takeshot()
+    
+  })
+
 });
 
 
