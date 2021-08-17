@@ -187,7 +187,7 @@ html, body {
   aspect-ratio: 1;
   transition: transform .2s;
   border:solid 0.3px lightgray;
-  margin:12px;
+  margin:4px;
 }
 .random-sample.selected{
   border:solid 2px #007AFF;
@@ -208,7 +208,7 @@ html, body {
   border:solid 2px #007AFF;
 }
 .random-sample-noise:hover {
-  transform: scale(1.8);
+  transform: scale(1.2);
  /* (150% zoom - Note: if the zoom is too large, it will go outside of the viewport) */
 }
 img.image_picker_image {
@@ -335,12 +335,12 @@ fieldset legend {
   max-height: 10%;
 }
 
-#p5-original{
+/* #p5-original{
   outline: #007AFF solid 2px;
-}
+} */
 
 #p5-reference{
-  outline: #FF9500 solid 2px;
+  outline: #007AFF solid 2px;
 }
 
 .file{

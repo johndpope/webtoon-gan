@@ -362,13 +362,38 @@ function MaskNameSpace(idx) {
   };
 }
 
+function add_new_mask(idx) {
+  $("#palette-body").append(
+    `<div class="card md-3 palette-item palette-item-class" 
+      id="palette-${idx}"
+      style="background-color: ${colors[idx]};
+      border: dashed ${colors[idx]}"></div>`
+  );
+
+  $("#palette-" + idx).append(
+    `<div class='card-img' id = "${"#palette-" + idx + "-mask"}" />`
+  );
+  mask_thumnail = new p5(MaskNameSpace(idx), "#palette-" + idx + "-mask");
+  $(".palette-item.selected").removeClass("selected");
+  $("#palette-" + idx).click(function () {
+    $(".palette-item.selected").removeClass("selected");
+    $(this).addClass("selected");
+    mask_selected_index = idx;
+  });
+  $("#palette-" + idx).click();
+}
 
 function updateOriginRandomGenerate() {
+  let gender = $("input[name='gender']:checked").val();
+  let hair = $("input[name='hair']:checked").val();
+  let eye = $("input[name='eye']:checked").val();
+
   $.ajax({
     type: "POST",
     url: "/post",
     data: JSON.stringify({
       id: id,
+      seed_key : `${gender}_${hair}_${eye}`,
       type: "random_generate"
     }),
     dataType: "json",
@@ -379,10 +404,27 @@ function updateOriginRandomGenerate() {
     $('.random-sample').each((i, d)=>{
       $(d).attr('src', paths[i]);
     })
-    url = $('.random-sample.selected').attr('src');
-    p5_input_original.updateImage(url);
-    original_choose = url;
+    // url = $('.random-sample.selected').attr('src');
+    // p5_input_original.updateImage(url);
+    // original_choose = url;
+
+    p5_input_reference.clear_canvas();
+    $(".palette-item-class").remove();
+    
+    mask_selected_index = null;
+    mask_idx = 0;
+    mask_selected_index = 0;
+    selected_class =  $('.random-sample.selected').attr('src');
+    
+    palette = selected_class;
+    add_new_mask(mask_idx);
+
+    p5_input_reference.updateImage(selected_class);
+
     updateOriginRandomGenerateNoise()
+
+    
+
   });
 }
 
@@ -406,10 +448,18 @@ function updateOriginRandomGenerateNoise() {
     $('.random-sample-noise').each((i, d)=>{
       $(d).attr('src', paths[i]);
     })
-    url = $('.random-sample-noise.selected').attr('src');
-    p5_input_original.updateImage(url);
-    original_choose = url;
+    p5_input_reference.clear_canvas();
+    $(".palette-item-class").remove();
+    pose_lr = 0;
+    mask_selected_index = null;
+    mask_idx = 0;
+    mask_selected_index = 0;
+    selected_class =  $('.random-sample-noise.selected').attr('src');
     
+    palette = selected_class;
+    add_new_mask(mask_idx);
+
+    p5_input_reference.updateImage(selected_class);
   });
 }
 
@@ -557,26 +607,7 @@ $(function () {
   $("#class-picker-submit-original").appendTo("#class-picker-ui");
   $("#class-picker-submit-reference").appendTo("#class-picker-ui");
 
-  function add_new_mask(idx) {
-    $("#palette-body").append(
-      `<div class="card md-3 palette-item palette-item-class" 
-        id="palette-${idx}"
-        style="background-color: ${colors[idx]};
-        border: dashed ${colors[idx]}"></div>`
-    );
-
-    $("#palette-" + idx).append(
-      `<div class='card-img' id = "${"#palette-" + idx + "-mask"}" />`
-    );
-    mask_thumnail = new p5(MaskNameSpace(idx), "#palette-" + idx + "-mask");
-    $(".palette-item.selected").removeClass("selected");
-    $("#palette-" + idx).click(function () {
-      $(".palette-item.selected").removeClass("selected");
-      $(this).addClass("selected");
-      mask_selected_index = idx;
-    });
-    $("#palette-" + idx).click();
-  }
+  
 
   mask_idx = 0;
 
@@ -770,10 +801,19 @@ $(function () {
   });
 
   $(document).on('dblclick', '.random-sample-noise',function(){
-    url = $('.random-sample-noise.selected').attr('src');
+
+    p5_input_reference.clear_canvas();
+    $(".palette-item-class").remove();
     pose_lr = 0;
-    p5_input_original.updateImage(url);
-    original_choose = url;
+    mask_selected_index = null;
+    mask_idx = 0;
+    mask_selected_index = 0;
+    selected_class =  $('.random-sample-noise.selected').attr('src');
+    
+    palette = selected_class;
+    add_new_mask(mask_idx);
+
+    p5_input_reference.updateImage(selected_class);
   });
 
   $(document).on('click', '.random-sample-noise',function(){
@@ -812,6 +852,7 @@ $(function () {
   })
 
   $('.submit').click(()=>{
+
     updateOriginRandomGenerate()
     
   })

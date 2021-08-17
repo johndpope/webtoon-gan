@@ -251,14 +251,16 @@ def post():
             os.makedirs(save_dir, exist_ok=True)
         
         if request.json['type'] == 'random_generate':
-            N = 6
-            rand = np.random.randint(0, 2**31-1, N)
+            N = 12
+            print(request.json['seed_key'])
+            seed_list_tmp = seed_list[request.json['seed_key']]
+            rand = np.random.choice(seed_list_tmp, N)
             paths = generate_images(G, N, rand, args['truncation_psi'], (np.zeros(N).astype(int), np.zeros(N)), args['outdir'])
             return flask.jsonify(result=paths)
 
         elif request.json['type'] == 'random_generate_noise':
             rand = request.json['random_seed']
-            N = 20
+            N = 12
             rand_sizes =  np.linspace(0, 0.80, num=N, endpoint=False)
             rand_noise_seed = np.random.randint(0, 2**31-1, N)
             paths = generate_images(G, N, [rand], args['truncation_psi'], (rand_noise_seed, rand_sizes), args['outdir'])
@@ -339,8 +341,8 @@ def post():
             # im_predict = ((im_predict/255)*220)/255
             im_predict = im_predict.astype(np.float32) * 0.003383
 
-            # with graph.as_default():
-            result = sketch_model.predict(im_predict, batch_size=1)[0]
+            with graph.as_default():
+                result = sketch_model.predict(im_predict, batch_size=1)[0]
 
             im_res = (result - np.mean(result) + 1.) * 255
             im_res = cv2.resize(im_res, (im.shape[1], im.shape[0]))
@@ -386,6 +388,9 @@ if __name__ == "__main__":
         print(dmv_path)
         direct_manipulation_vectors.append(torch.load(dmv_path)['boundary'].cpu())
         
+    with open(args["seed_info"], 'r') as seed_info:
+        seed_list = json.load(seed_info)
+
     direct_manipulation_vectors  = np.vstack(direct_manipulation_vectors)
     
     print((direct_manipulation_vectors * np.array([3]).reshape(-1, 1)).shape)
