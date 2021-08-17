@@ -209,7 +209,9 @@ def generate_images(
     seed,
     truncation_psi,
     noise_strength,
-    outdir):
+    outdir,
+    add_vector=None
+    ):
      
     print(outdir)
     os.makedirs(outdir, exist_ok=True)
@@ -224,7 +226,8 @@ def generate_images(
     random_vectors = np.vstack([np.random.RandomState(random_seed).randn(1, G.z_dim) for random_seed in noise_strength[0]])
     
     z +=  torch.from_numpy(random_vectors * noise_strength[1].reshape(-1, 1)).to(device)
-    
+    if add_vector is not None:
+        z +=  torch.from_numpy(add_vector).to(device)
     img = G(z, label, truncation_psi=truncation_psi, noise_mode='const')
     
     img = (img.permute(0, 2, 3, 1) * 127.5 + 128).clamp(0, 255).to(torch.uint8).cpu().numpy()
@@ -264,15 +267,39 @@ def post():
             rand_sizes =  np.linspace(0, 0.80, num=N, endpoint=False)
             rand_noise_seed = np.random.randint(0, 2**31-1, N)
             paths = generate_images(G, N, [rand], args['truncation_psi'], (rand_noise_seed, rand_sizes), args['outdir'])
-            
-            
             return flask.jsonify(result=paths)
+
+        elif request.json['type'] == 'direct_manipulation_example':
+            rand, rand_noise, rand_size, rand_hash = request.json['random_seed'].split('-')
+
+            N = 10
+            manipulation_size = [
+                [-10, 0, 0, 0, 0],
+                [10, 0, 0, 0, 0],
+                [0, -10, 0, 0, 0],
+                [0, 10, 0, 0, 0],
+                [0, 0, -10, 0, 0],
+                [0, 0, 10, 0, 0],
+                [0, 0, 0, -10, 0],
+                [0, 0, 0, 10, 0],
+                [0, 0, 0, 0, -10],
+                [0, 0, 0, 0, 10]
+            ]
+                                
+            dmv_total = np.matmul(np.array(manipulation_size), sefa_vector[:5].numpy())
+            print(dmv_total.shape)
+            
+            path = generate_images(G, N, [int(rand)], args['truncation_psi'], (np.full((N), rand_noise, dtype=int), np.full((N), rand_size, dtype=float)), args['outdir'], dmv_total)
+            print(path)
+            return flask.jsonify(result=path)
 
         elif request.json['type'] == 'direct_manipulation':
             
             rand, rand_noise, rand_size, rand_hash = request.json['random_seed'].split('-')
             manipulation_size = request.json['manipulation']
-            dmv_total = np.sum(direct_manipulation_vectors*np.array(manipulation_size).reshape(-1, 1) , axis=0)
+
+
+            dmv_total = np.sum(sefa_vector[:len(manipulation_size),:].numpy()*np.array(manipulation_size).reshape(-1, 1) , axis=0)
             
             path = generate_image(G, int(rand), args['truncation_psi'], (int(rand_noise), float(rand_size)), args['outdir'], dmv_total)
             return flask.jsonify(result=path)
@@ -393,8 +420,9 @@ if __name__ == "__main__":
 
     direct_manipulation_vectors  = np.vstack(direct_manipulation_vectors)
     
-    print((direct_manipulation_vectors * np.array([3]).reshape(-1, 1)).shape)
+    sefa_vector = torch.load(args['sefa_vector'])['eigvec']
     
+
     app.run(host="127.0.0.1", port=7000,
     debug=True,
     #  debug=False, 

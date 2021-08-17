@@ -7,6 +7,7 @@
     "stylegan2_ckpt": "./network-snapshot-xflip-020643.pkl",
     "seed_info": "./seed_info.json",
     "truncation_psi": 0.8,
+    "sefa_vector": "./xflip-all.pt",
     "direct_manipulation_vector": [
         "./pose.pt"
     ],
