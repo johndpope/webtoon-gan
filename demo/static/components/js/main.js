@@ -307,9 +307,9 @@ function generateOutputNameSpace() {
 
       s.images = [];
       s.currentImage = 0;
-      let download_button = s.createButton('export');
-      download_button.id('download-button')
-      download_button.position($('#defaultCanvas2').width()-60, 5);
+      // let download_button = s.createButton('export');
+      // download_button.id('download-button')
+      // download_button.position($('#defaultCanvas2').width()-60, 5);
       // download_button.parent(cvs)
     };
 
@@ -821,7 +821,7 @@ $(function () {
     updateOriginRandomGenerateNoise()
   })
 
-  for(let i = 0 ; i < 3 ; i++){
+  for(let i = 0 ; i < 5 ; i++){
     $(`#sefa${i}`).slider()
   } 
   // $( document ).ajaxStart(function() {

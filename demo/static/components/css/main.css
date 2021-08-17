@@ -27,7 +27,7 @@ html, body {
 #main-column-2 {
   height:100%;
   min-height:100%;
-  overflow-y:scroll;
+  background-color: rgba(0, 0, 0, 0.1);
 }
 #title {
   text-align: center;
@@ -70,9 +70,11 @@ html, body {
 #main-ui #result-control {
   text-align: center;
 }
+
 #main-ui #result-control .slider {
   margin: 10px auto 0;
 }
+
 #main-ui .p5-wrapper {
   position: relative;
   height: 100%;
@@ -286,7 +288,7 @@ ul.thumbnails.image_picker_selector li .thumbnail {
 }
 
 .random-setting{
-  padding : 0.5%;
+  padding : 5px;
   height:100%;
 }
 
@@ -323,9 +325,9 @@ fieldset legend {
   
 }
 
-.h-90 {
-  height: 90%;
-  max-height: 90%;
+.h-80 {
+  height: 80%;
+  max-height: 80%;
 }
 
 .h-10{
@@ -353,4 +355,8 @@ fieldset legend {
 
 .modal { 
   background-color :rgba(0, 0, 0, 0.6);
+}
+
+.no-overflow {
+  overflow-y:scroll;
 }
