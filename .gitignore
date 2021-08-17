@@ -137,3 +137,4 @@ dmypy.json
 *.pt
 
 random_generated
+seed_info.json

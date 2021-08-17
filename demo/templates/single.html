@@ -4,7 +4,7 @@
    {% extends "layout.html" %} {% block content %}
    <div class="main container-fluid">
       <div class="row h-100 justify-content-md-center main-sub">
-         <div class="col-md-10 shadow-sm " id="main-column-1">
+         <div class="col-md-9 shadow-sm " id="main-column-1">
             <div class="row main-ui-high" id="main-ui">
                <div class="col-md-2 align-self-center random-setting">
                   <div class="card editor">
@@ -29,11 +29,11 @@
                               <fieldset>
                                  <legend>Hair</legend>
                                  <label for="shorthair">
-                                    <input id="shorthair" type="radio" name="hair" value="shorthair" checked required>
+                                    <input id="shorthair" type="radio" name="hair" value="short_hair" checked required>
                                     Short
                                  </label>
                                  <label for="longhair">
-                                    <input id="longhair" type="radio" name="hair" value="longhair" required>
+                                    <input id="longhair" type="radio" name="hair" value="long_hair" required>
                                     Long  
                                  </label>
                               </fieldset>
@@ -41,11 +41,11 @@
                               <fieldset>
                                  <legend>Eye</legend>
                                  <label for="bigeye">
-                                    <input id="bigeye" type="radio" name="eye" value="bigeye" checked required>
+                                    <input id="bigeye" type="radio" name="eye" value="large_eye" checked required>
                                     Big
                                  </label>
                                  <label for="smalleye">
-                                    <input id="smalleye" type="radio" name="eye" value="smalleye" required>
+                                    <input id="smalleye" type="radio" name="eye" value="small_eye" required>
                                     Small
                                  </label>
                               </fieldset>
@@ -63,7 +63,7 @@
                   
                   <div class="card editor h-100">
                      <div class='card-header'>
-                        <b>Step 2</b>. 원하는 이미지를 더블클릭 해주세요.
+                        <b>Step 2-1</b>. 원하는 이미지를 더블클릭 해주세요. (디테일 조정 가능)
                         <button class="styled-button again regenerate" >
                            다시 만들기 <i class="fas fa-redo"></i>
                         </button>
@@ -71,17 +71,32 @@
                      </div>
                      <div class="card-body " id='randomSampleGenerated'>
                            <div class='row h-100 justify-content-md-center align-items-center d-flex '>
-                              <div class='col-md-3'>
-                                 <img class='random-sample selected' onerror="this.style.display='none'"/>
-                                 <img class='random-sample' onerror="this.style.display='none'"/>
-                              </div>
-                              <div class='col-md-3'>
-                                 <img class='random-sample' onerror="this.style.display='none'"/>
-                                 <img class='random-sample' onerror="this.style.display='none'"/>
-                              </div>
-                              <div class='col-md-3'>
-                                 <img class='random-sample' onerror="this.style.display='none'"/>
-                                 <img class='random-sample' onerror="this.style.display='none'"/>
+                              <div class='col-md-11'>
+                                 <div class='row'>
+                                    <div class='col-md-3'>
+                                       <img class='random-sample selected' onerror="this.style.display='none'"/>
+                                       <img class='random-sample' onerror="this.style.display='none'"/>
+                                       <img class='random-sample' onerror="this.style.display='none'"/>
+                                    </div>
+                                    <div class='col-md-3'>
+                                       <img class='random-sample' onerror="this.style.display='none'"/>
+                                       <img class='random-sample' onerror="this.style.display='none'"/>
+                                       <img class='random-sample' onerror="this.style.display='none'"/>
+                                       
+                                    </div>
+                                    <div class='col-md-3'>
+                                       <img class='random-sample' onerror="this.style.display='none'"/>
+                                       <img class='random-sample' onerror="this.style.display='none'"/>
+                                       <img class='random-sample' onerror="this.style.display='none'"/>
+                                       
+                                    </div>
+                                    <div class='col-md-3'>
+                                       <img class='random-sample' onerror="this.style.display='none'"/>
+                                       <img class='random-sample' onerror="this.style.display='none'"/>
+                                       <img class='random-sample' onerror="this.style.display='none'"/>
+                                       
+                                    </div>
+                                 </div>
                               </div>
                               
                            </div>
@@ -94,7 +109,7 @@
                <div class="col-md-5 align-self-center random-setting">
                   <div class="card editor h-100">
                      <div class='card-header'>
-                        <b>Step 3</b>. 원하는 이미지를 더블클릭 해주세요.
+                        <b>Step 2-2</b>. 원하는 이미지를 더블클릭 해주세요. (디테일 조정 가능)
                         <button class="styled-button again-noise regenerate" >
                            다시 만들기 <i class="fas fa-redo"></i>
                         </button>
@@ -102,37 +117,34 @@
                      </div>
                      <div class="card-body " id='randomSampleGeneratedNoise'>
                         <div class='row h-100 justify-content-md-center align-items-center d-flex '>
-                           <div class='col-md-2'>
-                              <img class='random-sample-noise selected' onerror="this.style.display='none'"/>
-                              <img class='random-sample-noise' onerror="this.style.display='none'"/>
-                              <img class='random-sample-noise' onerror="this.style.display='none'"/>
-                              <img class='random-sample-noise' onerror="this.style.display='none'"/>
+                           <div class='col-md-11'>
+                              <div class='row'>
+                                 <div class='col-md-3'>
+                                    <img class='random-sample-noise selected' onerror="this.style.display='none'"/>
+                                    <img class='random-sample-noise' onerror="this.style.display='none'"/>
+                                    <img class='random-sample-noise' onerror="this.style.display='none'"/>
+                                    
+                                 </div>
+                                 <div class='col-md-3'>
+                                    <img class='random-sample-noise' onerror="this.style.display='none'"/>
+                                    <img class='random-sample-noise' onerror="this.style.display='none'"/>
+                                    <img class='random-sample-noise' onerror="this.style.display='none'"/>
+                                    
+                                 </div>
+                                 <div class='col-md-3'>
+                                    <img class='random-sample-noise' onerror="this.style.display='none'"/>
+                                    <img class='random-sample-noise' onerror="this.style.display='none'"/>
+                                    <img class='random-sample-noise' onerror="this.style.display='none'"/>
+                                    
+                                 </div>
+                                 <div class='col-md-3'>
+                                    <img class='random-sample-noise' onerror="this.style.display='none'"/>
+                                    <img class='random-sample-noise' onerror="this.style.display='none'"/>
+                                    <img class='random-sample-noise' onerror="this.style.display='none'"/>
+                                    
+                                 </div>
+                              </div>
                            </div>
-                           <div class='col-md-2'>
-                              <img class='random-sample-noise' onerror="this.style.display='none'"/>
-                              <img class='random-sample-noise' onerror="this.style.display='none'"/>
-                              <img class='random-sample-noise' onerror="this.style.display='none'"/>
-                              <img class='random-sample-noise' onerror="this.style.display='none'"/>
-                           </div>
-                           <div class='col-md-2'>
-                              <img class='random-sample-noise' onerror="this.style.display='none'"/>
-                              <img class='random-sample-noise' onerror="this.style.display='none'"/>
-                              <img class='random-sample-noise' onerror="this.style.display='none'"/>
-                              <img class='random-sample-noise' onerror="this.style.display='none'"/>
-                           </div>
-                           <div class='col-md-2'>
-                              <img class='random-sample-noise' onerror="this.style.display='none'"/>
-                              <img class='random-sample-noise' onerror="this.style.display='none'"/>
-                              <img class='random-sample-noise' onerror="this.style.display='none'"/>
-                              <img class='random-sample-noise' onerror="this.style.display='none'"/>
-                           </div>
-                           <div class='col-md-2'>
-                              <img class='random-sample-noise' onerror="this.style.display='none'"/>
-                              <img class='random-sample-noise' onerror="this.style.display='none'"/>
-                              <img class='random-sample-noise' onerror="this.style.display='none'"/>
-                              <img class='random-sample-noise' onerror="this.style.display='none'"/>
-                           </div>
-                           
                         </div>
                         
                      </div>
@@ -140,75 +152,158 @@
                   
                </div>
             </div>
-            <div class="row justify-content-md-center align-items-center d-flex main-ui-middle  random-setting" id="main-ui">
-               <div class='card col-md-12 align-self-center'>
-                  <div class='card-header'>
-                     <b>Step 4</b>. 디테일한 각도 조정과 합성을 통해 최종 이미지를 만들 수 있습니다. (중간 이미지에 합성하고 싶은 부분을 색칠하고 화살표 버튼(➞)을 클릭해주세요.)
-                  </div>
-                  <div class='card-body'>
-                     <div class='row justify-content-md-center align-items-center d-flex h-90'>
-                        <div class="col-md-2 align-self-center" id="main-ui-middle">
-                           <input
-                                    id="sefa0"
-                                    data-slider-id="sefa0Slider"
-                                    type="text"
-                                    data-slider-min="0"
-                                    data-slider-max="15"
-                                    data-slider-step="1"
-                                    data-slider-value="15"
-                                    />
-
-                           <br>
-                           <input
-                                    id="sefa1"
-                                    data-slider-id="sefa1Slider"
-                                    type="text"
-                                    data-slider-min="0"
-                                    data-slider-max="15"
-                                    data-slider-step="1"
-                                    data-slider-value="15"
-                                    />      
-
-
+            <div class="row justify-content-md-center align-items-center d-flex main-ui-middle " id="main-ui">
+               <div class='col-md-12 align-self-center random-setting'>
+                  <div class='card h-100'>
+                     <div class='card-header'>
+                        <b>Step 4</b>. 생성된 이미지의 다양한  조정과 합성을 통해 최종 이미지를 만들 수 있습니다. (중간 이미지에 합성하고 싶은 부분을 색칠하고 화살표 버튼(➞)을 클릭해주세요.)
+                     </div>
+                     <div class='card-body'>
+                        <div class='row justify-content-md-center align-items-center d-flex h-10'>
+                           <div class='col align-self-center'>
+                           <div class="input-group">
+                              
+                              <input type="text" class="form-control" placeholder="수정 요청 내용을 적어주세요" aria-label="character-description">
+                              <div class="input-group-append">
+                                 <button class="btn btn-outline-secondary" type="button">전체 수정 요청 내보내기</button>
+                               </div>
+                            </div>
+                            </div>
                         </div>
-                        <div class="col align-self-center">
+                        <div class='row justify-content-md-center align-items-center d-flex h-80'>
                            
-                           <div id="p5-original-wrapper" class="p5-wrapper">
-                              <div id="p5-original" class="p5"></div>
-                           </div>
-                     
-                        </div>
+                           <div class="col align-self-center">
+                              
+                              <div id="p5-original-wrapper" class="p5-wrapper">
+                                 <div id="p5-original" class="p5"></div>
+                              </div>
                         
-                        <div class="col align-self-center ">
+                           </div>
                            
-                           <div class="card editor">
-                              <div class="card-body">
-                                 <div id="p5-reference-wrapper" class="p5-wrapper">
-                                    <div id="p5-reference" class="p5"></div>
+                           <div class="col align-self-center ">
+                              
+                              <div class="card editor">
+                                 <div class="card-body">
+                                    <div id="p5-reference-wrapper" class="p5-wrapper">
+                                       <div id="p5-reference" class="p5"></div>
+                                    </div>
+                                 </div>
+                              </div>
+                              
+                           </div>
+                           <div class="col-md-2 align-self-center" id="main-ui-middle">
+                              <div class='row'>
+                                 <div class='col-md-2'>
+                                    <input
+                                             id="sefa0"
+                                             data-slider-id="sefa0Slider"
+                                             type="text"
+                                             data-slider-min="0"
+                                             data-slider-max="15"
+                                             data-slider-step="1"
+                                             data-slider-value="15"
+                                             data-slider-orientation="vertical"
+                                             />
+                                 </div>
+                                 
+                                 <div class='col-md-2'>
+                                    <input
+                                             id="sefa1"
+                                             data-slider-id="sefa1Slider"
+                                             type="text"
+                                             data-slider-min="0"
+                                             data-slider-max="15"
+                                             data-slider-step="1"
+                                             data-slider-value="15"
+                                             data-slider-orientation="vertical"
+                                             />
+         
+                                 </div>
+
+                                 <div class='col-md-2'>
+                                    <input
+                                             id="sefa2"
+                                             data-slider-id="sefa2Slider"
+                                             type="text"
+                                             data-slider-min="0"
+                                             data-slider-max="15"
+                                             data-slider-step="1"
+                                             data-slider-value="15"
+                                             data-slider-orientation="vertical"
+                                             />
+         
+                                 </div>
+
+                                 <div class='col-md-2'>
+                                    <input
+                                             id="sefa3"
+                                             data-slider-id="sefa3Slider"
+                                             type="text"
+                                             data-slider-min="0"
+                                             data-slider-max="15"
+                                             data-slider-step="1"
+                                             data-slider-value="15"
+                                             data-slider-orientation="vertical"
+                                             />
+         
+                                 </div>
+                                 <div class='col-md-2'>
+                                    <input
+                                             id="sefa4"
+                                             data-slider-id="sefa4Slider"
+                                             type="text"
+                                             data-slider-min="0"
+                                             data-slider-max="15"
+                                             data-slider-step="1"
+                                             data-slider-value="15"
+                                             data-slider-orientation="vertical"
+                                             />
+         
                                  </div>
                               </div>
                            </div>
-                           
-                        </div>
-                        
-                        <div class="col-md-1 align-self-center" id="main-ui-middle">
-                           <button
-                              type="submit"
-                              class="form-control btn"
-                              id="main-ui-submit"
-                              disabled
-                              >
-                           ➞
-                           </button>
-                        </div>
-                        <div class="col align-self-center ">
-                           
-                           <div class="card editor">
-                              <div class="card-body">
-                                 <div id="p5-right-wrapper" class="p5-wrapper">
-                                    <div id="p5-right" class="p5"></div>
+                           <div class="col-md-1 align-self-center" id="main-ui-middle">
+                              <button
+                                 type="submit"
+                                 class="form-control btn"
+                                 id="main-ui-submit"
+                                 disabled
+                                 >
+                              ➞
+                              </button>
+                           </div>
+                           <div class="col align-self-center ">
+                              
+                              <div class="card editor">
+                                 <div class="card-body">
+                                    <div id="p5-right-wrapper" class="p5-wrapper">
+                                       <div id="p5-right" class="p5"></div>
+                                    </div>
                                  </div>
+                                 
+                                 
                               </div>
+                           </div>   
+                        </div>
+                        <div class='row justify-content-md-center align-items-center d-flex h-10'>
+               
+                           <div class = 'col-md-3 justify-content-md-center h-100'>
+                              <button class="styled-button" id="add-mask">New Layer</button>
+                              <button class="styled-button" id="sketch-clear">모든 Layer 삭제</button>
+                              <button class="styled-button" id="mask-clear">현재 Layer 초기화</button>
+                           </div>
+                           <div class='col-md-6  h-100' id="palette-body">
+                              <div
+                                 class="palette-item selected"
+                                 id="palette-eraser"
+                                 data-class="-1"
+                                 style="background-color: #000; border : dashed #000"
+                                 >
+                                 <img src="/demo/static/components/img/eraser.png" />
+                              </div>
+                              
+                           </div>
+                           <div class = 'col-md-3 justify-content-md-center  h-100'>
                               <div id="result-control" class="row">
                                  <input
                                     id="ex1"
@@ -220,65 +315,65 @@
                                     data-slider-value="15"
                                     />
                               </div>
-                              
                            </div>
-                        </div>   
-                     </div>
-                     <div class='row justify-content-md-center align-items-center d-flex h-10'>
-              
-                        <div class = 'col-md-2 justify-content-md-center'>
-                           <button class="styled-button" id="add-mask">New Layer</button>
-                           <button class="styled-button" id="sketch-clear">모든 Layer 삭제</button>
-                           <button class="styled-button" id="mask-clear">현재 Layer 초기화</button>
-                         </div>
-                        <div class='col-md-6' id="palette-body">
-                           <div
-                              class="palette-item selected"
-                              id="palette-eraser"
-                              data-class="-1"
-                              style="background-color: #000; border : dashed #000"
-                              >
-                              <img src="/demo/static/components/img/eraser.png" />
-                           </div>
-                        
                         </div>
                      </div>
                   </div>
-            
                </div>
             </div>
 
             
          </div>
-         <div class='col-md-2 shadow-sm' id='main-column-2'>
-            <div class='card random-generate'>
-               <div class='card-header'><b>Step 4-1</b>. 더블클릭하여 합성용 이미지를 추가합니다.</div>
-            </div>
-            <div id="class-list">
-               <select
-                  class="image-picker show-html form-control col-md-6"
-                  id="class-picker"
-                  ></select>
-
-               
+         <div class='col-md-3 shadow-sm' id='main-column-2'>
+            <div class="row main-ui-high" id="main-ui">
+               <div class="col-md-12 align-self-center random-setting">
+                  <div class='card editor h-100'>
+                     <div class='card-header'><b>Step 2-3</b>. 원하는 이미지를 더블클릭 해주세요. (디테일 조정 불가능)</div>
+                     <div class='card-body no-overflow'>
+                        <div class='col align-items-center'>
+                           <label class="item-img center-block file styled-button" for="input-file">
+                              커스텀 이미지 추가
+                            </label>
+                        </div>
+                        <div class='col' id="class-list">
+                           <select
+                              class="image-picker show-html form-control col-md-6"
+                              id="class-picker"
+                              ></select>
             
-               <label class="cabinet center-block">
-                  <figure>
-                     <div class="thumbnail">
-                        <img
-                           src="/demo/static/components/img/face-detection.png"
-                           class="img-responsive"
-                           id="item-img-output"
-                           />
+                           
+                        
+                           <!-- <label class="cabinet center-block">
+                              <figure>
+                                 <div class="thumbnail">
+                                    <img
+                                       src="/demo/static/components/img/face-detection.png"
+                                       class="img-responsive"
+                                       id="item-img-output"
+                                       />
+                                 </div>
+                                 <input
+                                    type="file"
+                                    class="item-img file center-block"
+                                    name="file_photo"
+                                    />
+                              </figure>
+                           </label> -->
+                        
+                        </div>
                      </div>
-                     <input
-                        type="file"
-                        class="item-img file center-block"
-                        name="file_photo"
-                        />
-                  </figure>
-               </label>
-            
+                  </div>
+               </div>
+            </div>
+            <div class="row justify-content-md-center align-items-center d-flex main-ui-middle " id="main-ui">
+               <div class="col align-self-center random-setting">
+               <div class='card h-100'>
+                  <div class='card-header'><b>임시저장</b></div>
+                  <div class='card-body'>
+                    
+                  </div>
+               </div>
+               </div>
             </div>
          </div>
 
