@@ -308,9 +308,12 @@ def post():
         
         elif request.json['type'] == 'generate':
             
-            original = request.json["original"]
+            original = request.json["original"][0]
             references = request.json["references"]
             
+            print(original)
+            print(references)
+
             colors = [hex2val(hex) for hex in request.json["colors"]]
             data_reference_bin = []
             shift_values = request.json["shift_original"]
@@ -373,13 +376,13 @@ def post():
 
             im_res = (result - np.mean(result) + 1.) * 255
             im_res = cv2.resize(im_res, (im.shape[1], im.shape[0]))
-
-            cv2.imwrite(os.path.join("demo/static/components/img/sketch", directory, file_name), im_res)
+            upload_path = os.path.join("demo/static/components/img/sketch", directory, file_name)
+            cv2.imwrite(upload_path, im_res)
 
             
             
 
-            return  flask.jsonify(result=['end'])
+            return  flask.jsonify(result=[upload_path])
     else:
         return redirect(url_for("index"))
 
@@ -405,9 +408,9 @@ if __name__ == "__main__":
     print('Import Sketch Model')
     sketch_model = None
     rand = 0
-    # graph = tf.get_default_graph()
-    # sketch_model = load_model('./sketch_model.h5')
-    # sketch_model._make_predict_function()
+    graph = tf.get_default_graph()
+    sketch_model = load_model('./sketch_model.h5')
+    sketch_model._make_predict_function()
     print('Success.')
     
     direct_manipulation_vectors = [] 
@@ -424,8 +427,8 @@ if __name__ == "__main__":
     
 
     app.run(host="127.0.0.1", port=7000,
-    debug=True,
-    #  debug=False, 
+    # debug=True,
+     debug=False, 
     threaded=False
      
      )

@@ -15,38 +15,38 @@
                         
                            <form data-abide  onsubmit="return false">
                               <fieldset>
-                                 <legend>Gender</legend>
+                                 <legend class='condition-select'>성별</legend>
                                  <label for="male">
                                     <input id="male" type="radio" name="gender" value="male" checked required>
-                                    Male
+                                    남자
                                  </label>
                                  <label for="female">
                                     <input id="female" type="radio" name="gender" value="female" required>
-                                    Female
+                                    여자
                                  </label>
                               </fieldset>
                               
                               <fieldset>
-                                 <legend>Hair</legend>
+                                 <legend class='condition-select'>머리 길이</legend>
                                  <label for="shorthair">
                                     <input id="shorthair" type="radio" name="hair" value="short_hair" checked required>
-                                    Short
+                                    짧은 머리
                                  </label>
                                  <label for="longhair">
                                     <input id="longhair" type="radio" name="hair" value="long_hair" required>
-                                    Long  
+                                    긴 머리
                                  </label>
                               </fieldset>
                               
                               <fieldset>
-                                 <legend>Eye</legend>
+                                 <legend class='condition-select'>눈 크기</legend>
                                  <label for="bigeye">
                                     <input id="bigeye" type="radio" name="eye" value="large_eye" checked required>
-                                    Big
+                                    큰 눈
                                  </label>
                                  <label for="smalleye">
                                     <input id="smalleye" type="radio" name="eye" value="small_eye" required>
-                                    Small
+                                    작은 눈
                                  </label>
                               </fieldset>
             
@@ -164,7 +164,7 @@
                      <div class='card-header'>
                         <b>Step 4</b>. 생성된 이미지의 다양한  조정과 합성을 통해 최종 이미지를 만들 수 있습니다. (중간 이미지에 합성하고 싶은 부분을 색칠하고 화살표 버튼(➞)을 클릭해주세요.)
                         <button class="styled-button" id='comment-export'>
-                           내보내기 <i class="fas fa-redo"></i>
+                           내보내기 <i class="fas fa-file-export"></i>
                         </button>
 
                      </div>
@@ -313,9 +313,14 @@
                         <div class='row justify-content-md-center align-items-center d-flex h-10'>
                
                            <div class = 'col-md-3 justify-content-md-center h-100'>
-                              <button class="styled-button" id="add-mask">New Layer</button>
-                              <button class="styled-button" id="sketch-clear">모든 Layer 삭제</button>
-                              <button class="styled-button" id="mask-clear">현재 Layer 초기화</button>
+                              <label class="styled-button layer-button" for="input-file">
+                                 New Image
+                              </label>
+                              <input type="file" id="input-file" class="item-img file center-block"
+                              name="file_photo" style="display:none" />
+                              <button class="styled-button layer-button" id="add-mask">New Layer</button>
+                              <button class="styled-button layer-button" id="sketch-clear">모든 Layer 삭제</button>
+                              <button class="styled-button layer-button" id="mask-clear">현재 Layer 초기화</button>
                            </div>
                            <div class='col-md-6  h-100' id="palette-body">
                               <div
@@ -356,9 +361,12 @@
                      <div class='card-header'><b>Step 2-3</b>. 원하는 이미지를 더블클릭 해주세요. (디테일 조정 불가능)</div>
                      <div class='card-body no-overflow'>
                         <div class='col align-items-center'>
-                           <label class="item-img center-block file styled-button" for="input-file">
+                           
+                           <label class="styled-button layer-button" for="input-file">
                               커스텀 이미지 추가
-                            </label>
+                           </label>
+                           <input type="file" id="input-file" class="item-img file center-block"
+                           name="file_photo" style="display:none" />
                         </div>
                         <div class='col' id="class-list">
                            <select
@@ -368,22 +376,7 @@
             
                            
                         
-                           <!-- <label class="cabinet center-block">
-                              <figure>
-                                 <div class="thumbnail">
-                                    <img
-                                       src="/demo/static/components/img/face-detection.png"
-                                       class="img-responsive"
-                                       id="item-img-output"
-                                       />
-                                 </div>
-                                 <input
-                                    type="file"
-                                    class="item-img file center-block"
-                                    name="file_photo"
-                                    />
-                              </figure>
-                           </label> -->
+                           
                         
                         </div>
                      </div>
@@ -393,8 +386,21 @@
             <div class="row justify-content-md-center align-items-center d-flex main-ui-middle " id="main-ui">
                <div class="col align-self-center random-setting">
                   <div class='card h-100'>
-                     <div class='card-header'><b>임시저장</b> <i class="fas fa-archive"></i></div>
-                     <div class='card-body' id='temp-save-box'>
+                     <div class='card-header'><b>임시저장</b> <i class="fas fa-archive"></i> : 사용하고 싶은 이미지를 더블클릭 해주세요.</div>
+                     <div class='card-body justify-content-md-center align-items-center'>
+                        <div class='row'>
+                           <button class="styled-button trash" id='temp-save-img-delete'>
+                              선택 내용 삭제 <i class="fas fa-trash-alt"></i>
+                           </button>
+                        </div>
+                        <div class='row ' id='temp-save-box'>
+
+                        </div>
+<!-- 
+                        <button class="styled-button">
+                           오른쪽 이미지 추가
+                        </button> -->
+
 
                         <!-- <div class='row justify-content-md-center align-items-center'>
                            <div class='col-md-6'>
