@@ -338,9 +338,9 @@ fieldset legend {
   outline: #007AFF solid 2px;
 } */
 
-#p5-reference{
+/* #p5-reference{
   outline: #007AFF solid 2px;
-}
+} */
 
 .file{
   cursor : pointer;
@@ -382,10 +382,13 @@ fieldset legend {
 
 .temp-save {
   font-size: x-small;
-
 }
 
 .temp-save-noise {
+  font-size: x-small;
+}
+
+.temp-save-reference {
   font-size: x-small;
 }
 
@@ -398,15 +401,23 @@ fieldset legend {
   transition: transform .2s;
 }
 
+.temp-save-img-generated {
+  border : 2px solid #007AFF;
+}
+
+.temp-save-img-reference {
+  border : 2px solid #FF9500;
+}
+
 .temp-save-img.selected{
-  border : 0.1em solid green;
+  /* border : 0.1em solid green; */
+  filter: brightness(0.30);
 }
 
 .temp-save-img:hover {
 
   cursor: pointer;
   transform: scale(1.1);
-  border : 0.1em solid black;
 
 }
 
@@ -449,4 +460,8 @@ label.layer-button{
 
 label.layer-button:hover{
   cursor: pointer;
+}
+
+.warning-text {
+  color:#FF3B30;
 }

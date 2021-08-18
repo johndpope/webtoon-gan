@@ -3,51 +3,339 @@
    -->
    {% extends "layout.html" %} {% block content %}
    <div class="main container-fluid">
-      <div class="row justify-content-md-center main-sub">
-        
+      <div class="row h-100 justify-content-md-center main-sub">
          <div class="col-md-9 shadow-sm " id="main-column-1">
-            <div class="row" id="main-ui">
-               <div class='card col-md-12 align-self-center'>
-                  
-                  <div class='card-body'>
-                     <div class='row justify-content-md-center align-items-center d-flex h-90'>
-                        <div class="col-md-3 align-self-center">
-                           
-                           <div id="p5-original-wrapper" class="p5-wrapper">
-                              <div id="p5-original" class="p5"></div>
-                           </div>
+            <div class="row main-ui-high" id="main-ui">
+               <div class="col-md-2 align-self-center random-setting">
+                  <div class="card editor">
+                     <div class='card-header'>
+                        <b>Step 1</b>. 조건을 선택해주세요.
+                     </div>
+                     <div class="card-body align-items-center d-flex justify-content-center">
+                        
+                           <form data-abide  onsubmit="return false">
+                              <fieldset>
+                                 <legend class='condition-select'>성별</legend>
+                                 <label for="male">
+                                    <input id="male" type="radio" name="gender" value="male" checked required>
+                                    남자
+                                 </label>
+                                 <label for="female">
+                                    <input id="female" type="radio" name="gender" value="female" required>
+                                    여자
+                                 </label>
+                              </fieldset>
+                              
+                              <fieldset>
+                                 <legend class='condition-select'>머리 길이</legend>
+                                 <label for="shorthair">
+                                    <input id="shorthair" type="radio" name="hair" value="short_hair" checked required>
+                                    짧은 머리
+                                 </label>
+                                 <label for="longhair">
+                                    <input id="longhair" type="radio" name="hair" value="long_hair" required>
+                                    긴 머리
+                                 </label>
+                              </fieldset>
+                              
+                              <fieldset>
+                                 <legend class='condition-select'>눈 크기</legend>
+                                 <label for="bigeye">
+                                    <input id="bigeye" type="radio" name="eye" value="large_eye" checked required>
+                                    큰 눈
+                                 </label>
+                                 <label for="smalleye">
+                                    <input id="smalleye" type="radio" name="eye" value="small_eye" required>
+                                    작은 눈
+                                 </label>
+                              </fieldset>
+            
+                              <button type="submit" class='styled-button submit'>Start!</button>
+                           </form>
+                        
                      
-                        </div>
-                        <div class="col-md-3 align-self-center ">
+                        
+                     </div>
+                  </div>
+                  
+               </div>
+               <div class="col-md-5 align-self-center random-setting">
+                  
+                  <div class="card editor h-100">
+                     <div class='card-header'>
+                        <b>Step 2-1</b>. 원하는 이미지를 더블클릭 해주세요.
+                        <button class="styled-button again regenerate" >
+                           다시 만들기 <i class="fas fa-redo"></i>
+                        </button>
+                        <button class="styled-button temp-save" >
+                           임시저장 <i class="fas fa-archive"></i>
+                        </button>
+                     </div>
+                     <div class="card-body " id='randomSampleGenerated'>
+                           <div class='row h-100 justify-content-md-center align-items-center d-flex '>
+                              <div class='col-md-11'>
+                                 <div class='row'>
+                                    <div class='col-md-3'>
+                                       <img class='random-sample selected' onerror="this.style.display='none'"/>
+                                       <img class='random-sample' onerror="this.style.display='none'"/>
+                                       <img class='random-sample' onerror="this.style.display='none'"/>
+                                    </div>
+                                    <div class='col-md-3'>
+                                       <img class='random-sample' onerror="this.style.display='none'"/>
+                                       <img class='random-sample' onerror="this.style.display='none'"/>
+                                       <img class='random-sample' onerror="this.style.display='none'"/>
+                                       
+                                    </div>
+                                    <div class='col-md-3'>
+                                       <img class='random-sample' onerror="this.style.display='none'"/>
+                                       <img class='random-sample' onerror="this.style.display='none'"/>
+                                       <img class='random-sample' onerror="this.style.display='none'"/>
+                                       
+                                    </div>
+                                    <div class='col-md-3'>
+                                       <img class='random-sample' onerror="this.style.display='none'"/>
+                                       <img class='random-sample' onerror="this.style.display='none'"/>
+                                       <img class='random-sample' onerror="this.style.display='none'"/>
+                                       
+                                    </div>
+                                 </div>
+                              </div>
+                              
+                           </div>
                            
-                           <div class="card editor">
-                              <div class="card-body">
-                                 <div id="p5-reference-wrapper" class="p5-wrapper">
-                                    <div id="p5-reference" class="p5"></div>
+                     </div>
+                  </div>
+                  
+               </div>
+               
+               <div class="col-md-5 align-self-center random-setting">
+                  <div class="card editor h-100">
+                     <div class='card-header'>
+                        <b>Step 2-2</b>. 변경된 디테일 이미지를 더블클릭 해주세요.
+                        <button class="styled-button again-noise regenerate" >
+                           다시 만들기 <i class="fas fa-redo"></i>
+                        </button>
+
+                        <button class="styled-button temp-save-noise" >
+                           임시저장 <i class="fas fa-archive"></i>
+                        </button>
+                        
+                     </div>
+                     <div class="card-body " id='randomSampleGeneratedNoise'>
+                        <div class='row h-100 justify-content-md-center align-items-center d-flex '>
+                           <div class='col-md-11'>
+                              <div class='row'>
+                                 <div class='col-md-3'>
+                                    <img class='random-sample-noise selected' onerror="this.style.display='none'"/>
+                                    <img class='random-sample-noise' onerror="this.style.display='none'"/>
+                                    <img class='random-sample-noise' onerror="this.style.display='none'"/>
+                                    
+                                 </div>
+                                 <div class='col-md-3'>
+                                    <img class='random-sample-noise' onerror="this.style.display='none'"/>
+                                    <img class='random-sample-noise' onerror="this.style.display='none'"/>
+                                    <img class='random-sample-noise' onerror="this.style.display='none'"/>
+                                    
+                                 </div>
+                                 <div class='col-md-3'>
+                                    <img class='random-sample-noise' onerror="this.style.display='none'"/>
+                                    <img class='random-sample-noise' onerror="this.style.display='none'"/>
+                                    <img class='random-sample-noise' onerror="this.style.display='none'"/>
+                                    
+                                 </div>
+                                 <div class='col-md-3'>
+                                    <img class='random-sample-noise' onerror="this.style.display='none'"/>
+                                    <img class='random-sample-noise' onerror="this.style.display='none'"/>
+                                    <img class='random-sample-noise' onerror="this.style.display='none'"/>
+                                    
                                  </div>
                               </div>
                            </div>
-                           
                         </div>
-                        <div class="col-md-1 align-self-center" id="main-ui-middle">
-                           <button
-                              type="submit"
-                              class="form-control btn"
-                              id="main-ui-submit"
-                              disabled
-                              >
-                           ➞
-                           </button>
+                        
+                     </div>
+                  </div>
+                  
+               </div>
+            </div>
+            <div class="row justify-content-md-center align-items-center d-flex main-ui-middle " id="main-ui">
+               <div class='col-md-12 align-self-center random-setting'>
+                  <div class='card h-100'>
+                     <div class='card-header'>
+                        <b>Step 4</b>. 생성된 이미지의 다양한  조정과 합성을 통해 최종 이미지를 만들 수 있습니다. (중간 이미지에 합성하고 싶은 부분을 색칠하고 화살표 버튼(➞)을 클릭해주세요.)
+                        <button class="styled-button" id='comment-export'>
+                           내보내기 <i class="fas fa-file-export"></i>
+                        </button>
+
+                     </div>
+                     <div class='card-body' id='detail-comment'>
+                        <div class='row justify-content-md-center align-items-center d-flex h-10'>
+                           <div class='col align-self-center'>
+                           <div class="input-group">
+                              
+                              <input type="text" class="form-control" placeholder="수정 요청 내용을 적어주세요" aria-label="character-description">
+                              
+                            </div>
+                            </div>
                         </div>
-                        <div class="col-md-3 align-self-center ">
+                        <div class='row justify-content-md-center align-items-center d-flex h-80'>
                            
-                           <div class="card editor">
-                              <div class="card-body">
-                                 <div id="p5-right-wrapper" class="p5-wrapper">
-                                    <div id="p5-right" class="p5"></div>
+                           <div class="col-md-3 align-self-center">
+                              
+                              <div id="p5-original-wrapper" class="p5-wrapper">
+                                 <div id="p5-original" class="p5"></div>
+                              </div>
+                        
+                           </div>
+                           
+                           <div class="col-md-3 align-self-center ">
+                              
+                              <div class="card editor">
+                                 <div class="card-body">
+                                    <div id="p5-reference-wrapper" class="p5-wrapper">
+                                       <div id="p5-reference" class="p5"></div>
+                                    </div>
                                  </div>
                               </div>
-                              <div id="result-control" class="row">
+                              
+                           </div>
+                           <div class='col-md-3 align-self-center'>
+                              <div class='row justify-content-md-center align-items-center d-flex'>
+                                 <div class="col-md-9 align-self-center" >
+                                    <div class='row justify-content-md-center align-items-center d-flex'>
+                                       <div class='col-md-2 align-self-center'>
+                                          <img class='sefa-image' onerror="this.style.display='none'"/>
+                                          <input
+                                                   id="sefa0"
+                                                   class='sefa-slider'
+                                                   data-slider-id="sefa0Slider"
+                                                   type="text"
+                                                   data-slider-min="-10"
+                                                   data-slider-max="10"
+                                                   data-slider-step="2"
+                                                   data-slider-value="0"
+                                                   data-slider-orientation="vertical"
+                                                   />
+                                          <img class='sefa-image' onerror="this.style.display='none'"/>
+                                       </div>
+                                       
+                                       <div class='col-md-2 align-self-center'>
+                                          <img class='sefa-image' onerror="this.style.display='none'"/>
+                                          <input
+                                                   id="sefa1"
+                                                   class='sefa-slider'
+                                                   data-slider-id="sefa1Slider"
+                                                   type="text"
+                                                   data-slider-min="-10"
+                                                   data-slider-max="10"
+                                                   data-slider-step="2"
+                                                   data-slider-value="0"
+                                                   data-slider-orientation="vertical"
+                                                   />
+                                          <img class='sefa-image' onerror="this.style.display='none'"/>
+               
+                                       </div>
+
+                                       <div class='col-md-2 align-self-center'>
+                                          <img class='sefa-image' onerror="this.style.display='none'"/>
+                                          <input
+                                                   id="sefa2"
+                                                   class='sefa-slider'
+                                                   data-slider-id="sefa2Slider"
+                                                   type="text"
+                                                   data-slider-min="-10"
+                                                   data-slider-max="10"
+                                                   data-slider-step="2"
+                                                   data-slider-value="0"
+                                                   data-slider-orientation="vertical"
+                                                   />
+                                          <img class='sefa-image' onerror="this.style.display='none'"/>
+               
+                                       </div>
+
+                                       <div class='col-md-2 align-self-center'>
+                                          <img class='sefa-image' onerror="this.style.display='none'"/>
+                                          <input
+                                                   id="sefa3"
+                                                   class='sefa-slider'
+                                                   data-slider-id="sefa3Slider"
+                                                   type="text"
+                                                   data-slider-min="-10"
+                                                   data-slider-max="10"
+                                                   data-slider-step="2"
+                                                   data-slider-value="0"
+                                                   data-slider-orientation="vertical"
+                                                   />
+                                          <img class='sefa-image' onerror="this.style.display='none'"/>
+                                       </div>
+                                       <div class='col-md-2 align-self-center'>
+                                          <img class='sefa-image' onerror="this.style.display='none'"/>
+                                          <input
+                                                   id="sefa4"
+                                                   class='sefa-slider'
+                                                   data-slider-id="sefa4Slider"
+                                                   type="text"
+                                                   data-slider-min="-10"
+                                                   data-slider-max="10"
+                                                   data-slider-step="2"
+                                                   data-slider-value="0"
+                                                   data-slider-orientation="vertical"
+                                                   />
+                                          <img class='sefa-image' onerror="this.style.display='none'"/>
+                                       </div>
+                                    </div>
+                                 </div>
+                                 <div class="col-md-3 align-self-center" >
+                                    <button
+                                       type="submit"
+                                       class="form-control btn"
+                                       id="main-ui-submit"
+                                       disabled
+                                       >
+                                    ➞
+                                    </button>
+                                 </div>
+                              </div>
+                           </div>
+                           <div class="col-md-3 align-self-center ">
+                              
+                              <div class="card editor">
+                                 <div class="card-body">
+                                    <div id="p5-right-wrapper" class="p5-wrapper">
+                                       <div id="p5-right" class="p5"></div>
+                                    </div>
+                                 </div>
+                                 
+                                 
+                              </div>
+                           </div>   
+                        </div>
+                        <div class='row justify-content-md-center align-items-center d-flex h-10'>
+               
+                           <div class = 'col-md-3 justify-content-md-center h-100'>
+                              <label class="styled-button layer-button" for="input-file">
+                                 New Image
+                              </label>
+                              <input type="file" id="input-file" class="item-img file center-block"
+                              name="file_photo" style="display:none" />
+                              <button class="styled-button layer-button" id="add-mask">New Layer</button>
+                              <button class="styled-button layer-button" id="sketch-clear">모든 Layer 삭제</button>
+                              <button class="styled-button layer-button" id="mask-clear">현재 Layer 초기화</button>
+                              <button class="styled-button layer-button" id="flip">오른쪽 이미지 뒤집기</button>
+                           </div>
+                           <div class='col-md-6  h-100' id="palette-body">
+                              <div
+                                 class="palette-item selected"
+                                 id="palette-eraser"
+                                 data-class="-1"
+                                 style="background-color: #000; border : dashed #000"
+                                 >
+                                 <img src="/demo/static/components/img/eraser.png" />
+                              </div>
+                              
+                           </div>
+                           <div class = 'col-md-3 justify-content-md-center  h-100'>
+                              <!-- <div id="result-control" class="row">
                                  <input
                                     id="ex1"
                                     data-slider-id="ex1Slider"
@@ -57,83 +345,80 @@
                                     data-slider-step="1"
                                     data-slider-value="15"
                                     />
-                              </div>
-                              
+                              </div> -->
                            </div>
-                        </div>   
+                        </div>
                      </div>
-                     <div class='row justify-content-md-center align-items-center d-flex h-10'>
+                  </div>
+               </div>
+            </div>
+
+            
+         </div>
+         <div class='col-md-3 shadow-sm' id='main-column-2'>
+            <div class="row main-ui-high" id="main-ui">
+               <div class="col-md-12 align-self-center random-setting">
+                  <div class='card editor h-100'>
+                     <div class='card-header'><b>Step 2-3</b>. 원하는 이미지를 더블클릭 해주세요. <span class='warning-text'>(디테일 조정 불가능)</span>
+                        <button class="styled-button temp-save-reference" >
+                           임시저장 <i class="fas fa-archive"></i>
+                        </button>
+                     </div>
+                     <div class='card-body no-overflow'>
+                        <div class='col align-items-center'>
+                           
+                           <!-- <label class="styled-button layer-button" for="input-file">
+                              커스텀 이미지 추가
+                           </label>
+                           <input type="file" id="input-file" class="item-img file center-block"
+                           name="file_photo" style="display:none" /> -->
+                        </div>
+                        <div class='col' id="class-list">
+                           <select
+                              class="image-picker show-html form-control col-md-6"
+                              id="class-picker"
+                              ></select>
+            
+                           
                         
-                        <div class = 'col-md-2 justify-content-md-center'>
-                           <button class="styled-button" id="add-mask">New Layer</button>
-                           <button class="styled-button" id="sketch-clear">모든 Layer 삭제</button>
-                         </div>
-                        <div class='col-md-8' id="palette-body">
-                           <div
-                              class="palette-item selected"
-                              id="palette-eraser"
-                              data-class="-1"
-                              style="background-color: #000; border : dashed #000"
-                              >
-                              <img src="/demo/static/components/img/eraser.png" />
-                           </div>
+                           
                         
                         </div>
                      </div>
                   </div>
-            
                </div>
             </div>
-            <div class="row" id="main-ui-under"></div>
-         </div>
-         <div class='col-md-3 shadow-sm' id='main-column-2'>
-            <div class='card random-generate'>
-               <div class='card-header'><b>Step</b> 수정가능한 이미지나 일반 이미지를 선택하실 수 있습니다.</div>
-            </div>
-            <div id="class-list">
-              <button type="submit" class="styled-button" id="class-picker-submit-original">Original</button>
-              <button type="submit" class="styled-button" id="class-picker-submit-reference">Reference</button>
-              
-              <label class="styled-button" for="input-file">
-               커스텀 이미지 추가
-             </label>
-             <input type="file" id="input-file" class="item-img file center-block"
-             name="file_photo" style="display:none" />
+            <div class="row justify-content-md-center align-items-center d-flex main-ui-middle " id="main-ui">
+               <div class="col align-self-center random-setting">
+                  <div class='card h-100'>
+                     <div class='card-header'><b>임시저장</b> <i class="fas fa-archive"></i> : 사용하고 싶은 이미지를 더블클릭 해주세요.</div>
+                     <div class='card-body justify-content-md-center align-items-center'>
+                        <div class='row'>
+                           <button class="styled-button trash" id='temp-save-img-delete'>
+                              선택 내용 삭제 <i class="fas fa-trash-alt"></i>
+                           </button>
+                        </div>
+                        <div class='row ' id='temp-save-box'>
 
-                        
-              <div class='row'>
-              <select
-                  class="image-picker show-html form-control"
-                  id="class-picker"
-                  ></select>
+                        </div>
+<!-- 
+                        <button class="styled-button">
+                           오른쪽 이미지 추가
+                        </button> -->
+
+
+                        <!-- <div class='row justify-content-md-center align-items-center'>
+                           <div class='col-md-6'>
+
+                           </div>
+                        </div> -->
+                     </div>
+                  </div>
                </div>
-               <div class='row'>
-               <select
-               class="image-picker show-html form-control"
-               id="class-picker"
-               ></select>
-               </div>
-              
-            
-              <label class="cabinet center-block">
-                  <figure>
-                    <div class="thumbnail">
-                        <img
-                          src="/demo/static/components/img/face-detection.png"
-                          class="img-responsive"
-                          id="item-img-output"
-                          />
-                    </div>
-                    <input
-                        type="file"
-                        class="item-img file center-block"
-                        name="file_photo"
-                        />
-                  </figure>
-              </label>
-            
             </div>
          </div>
+
+
          <div
             class="modal fade bd-example-modal-lg"
             id="cropImagePop"
