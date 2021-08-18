@@ -394,16 +394,59 @@ fieldset legend {
   margin: 1%;
   
   aspect-ratio: 1;
+  border : 0.1em solid lightgray;
+  transition: transform .2s;
+}
+
+.temp-save-img.selected{
+  border : 0.1em solid green;
+}
+
+.temp-save-img:hover {
+
+  cursor: pointer;
+  transform: scale(1.1);
+  border : 0.1em solid black;
+
 }
 
 
 #comment-export {
   font-size: small;
-  background-color:#4Cd964;
+  background-color:#4Cd964;  
 }
+
 
 #comment-export:hover{
   color:#4Cd964;
   border:0.1em solid #4Cd964;
   background-color: white;
+}
+
+.trash {
+  font-size: small;
+  background-color:#FF3B30;  
+}
+
+.trash:hover{
+  color:#FF3B30;
+  border:0.1em solid #FF3B30;
+  background-color: white;
+}
+
+.condition-select{
+  color : gray;
+  font-weight: bold;
+}
+
+.layer-button{
+  font-size: small;
+}
+
+label.layer-button{
+  padding : 1px 4px;
+}
+
+label.layer-button:hover{
+  cursor: pointer;
 }

@@ -444,10 +444,15 @@ function updateOriginRandomGenerateNoise() {
     contentType: "application/json",
   }).done(function (data, textStatus, jqXHR) {
     let paths = data["result"];
-
+    
     $('.random-sample-noise').each((i, d)=>{
       $(d).attr('src', paths[i]);
     })
+    
+    for(let i = 0 ; i < 5 ; i++){
+      $(`#sefa${i}`).refresh();
+    }
+    
     p5_input_reference.clear_canvas();
     $(".palette-item-class").remove();
     pose_lr = 0;
@@ -619,7 +624,7 @@ $(function () {
     );
 
     for (var i = 0; i < files.length; i++) {
-      console.log(files[i]);
+      
       var image_name = files[i];
       let image_path = (dir_path == "etc" ? "" : dir_path + "/") + image_name;
       $(`#${dir_name}`).append(
@@ -691,12 +696,12 @@ $(function () {
   });
 
   $("#class-picker-submit-original").click(function () {
-    selected_class = $("#class-picker option:selected").attr("data-img-src");
-
+    // selected_class = $("#class-picker option:selected").attr("data-img-src");
+    // selected_class = 
     p5_input_original.updateImage(selected_class);
     original_image = selected_class;
     original_choose = selected_class;
-    $("#pose_lr").slider("refresh");
+    
     enableUI();
   });
 
@@ -797,7 +802,15 @@ $(function () {
           dataType: "json",
           contentType: "application/json",
         }).done(function (data, textStatus, jqXHR) {
-          window.location.href = window.location.href;
+          let url = data["result"];
+          console.log(url)
+          selected_class = url;
+          p5_input_original.updateImage(selected_class);
+          original_image = selected_class;
+          original_choose = selected_class;
+          
+          enableUI();
+          // window.location.href = window.location.href;
         });
       });
   });
@@ -937,23 +950,13 @@ $(function () {
     
   });
 
-  output.on('click', 'img', function() {
-      var image = $(this);
-      
-      image.remove();
-      
-  });
+  
 
   function takeshot() {
     let div = document.getElementById('detail-comment'); // $('#detail-comment');
-    console.log(div)
-    // Use the html2canvas
-    // function to take a screenshot
-    // and append it
-    // to the output div
+
     html2canvas(div).then(
         function (canvas) {
-          console.log('hello')
           let image = canvas
           .toDataURL("image/png")
           .replace("image/png", "image/octet-stream");
@@ -969,7 +972,34 @@ $(function () {
     takeshot()
     
   })
+  
+  $(document).on('click', '.temp-save-img',function(){
+    
+    // $('.temp-save-img.selected').removeClass('selected');
+    $(this).addClass('selected');
+  });
 
+  $('#temp-save-img-delete').on('click', function() {
+    $('.temp-save-img.selected').remove();
+    
+  });
+
+  $(document).on('dblclick', '.temp-save-img',function(){
+
+    p5_input_reference.clear_canvas();
+    $(".palette-item-class").remove();
+    pose_lr = 0;
+    mask_selected_index = null;
+    mask_idx = 0;
+    mask_selected_index = 0;
+    selected_class =  $(this).attr('src');
+    
+    palette = selected_class;
+    add_new_mask(mask_idx);
+
+    p5_input_reference.updateImage(selected_class);
+    updateDirectManipulateExample()
+  });
 });
 
 
