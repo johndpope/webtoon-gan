@@ -57,8 +57,8 @@ function ReferenceNameSpace() {
       s.push();
       s.translate(canvas_size / 2, canvas_size / 2);
       s.imageMode(s.CENTER);
-      s.rotate(s.rotate_angle);
-      // s.scale(sf);
+      // s.rotate(s.rotate_angle);
+      s.scale(sf, 1);
       s.background(255);
       s.noTint();
       if (s.body != null) {
@@ -69,7 +69,7 @@ function ReferenceNameSpace() {
       s.push();
       s.translate(canvas_size / 2, canvas_size / 2);
       s.imageMode(s.CENTER);
-      // s.scale(sf);
+      // s.scale(1, sf);
       s.tint(255, 127);
       if (mask_selected_index != null)
         s.image(s.mask[mask_selected_index], 0, 0);
@@ -172,6 +172,7 @@ function ReferenceNameSpace() {
 
 
     s.updateImage = function (url) {
+      sf = 1;
       s.body = s.loadImage(url);
     };
   };
@@ -450,7 +451,7 @@ function updateOriginRandomGenerateNoise() {
     })
     
     for(let i = 0 ; i < 5 ; i++){
-      $(`#sefa${i}`).refresh();
+      $(`#sefa${i}`).slider("refresh");
     }
     
     p5_input_reference.clear_canvas();
@@ -532,8 +533,17 @@ function updateDirectManipulate() {
   });
 }
 
+function waiting_start(){
+  $('.waiting-modal').modal('show');  
+}
+
+function waiting_end(){
+  $('.waiting-modal').modal('hide');
+}
+
 function updateResult() {
   disableUI();
+  waiting_start();
   var canvas_reference = $("#p5-reference canvas").slice(1);
 
   var data_reference = [];
@@ -562,6 +572,7 @@ function updateResult() {
       data_reference: data_reference,
       shift_original: [p5_input_original.r_x, p5_input_original.r_y],
       colors: colors,
+      flip: sf
     }),
     dataType: "json",
     contentType: "application/json",
@@ -572,6 +583,7 @@ function updateResult() {
     $("#ex1").attr("data-slider-value", urls.length - 1);
     $("#ex1").slider("refresh");
     enableUI();
+    waiting_end();
   });
 }
 
@@ -588,6 +600,9 @@ function disableUI() {
 }
 
 $(function () {
+
+  
+
   $("#main-ui-submit").click(function () {
     updateResult();
   });
@@ -712,7 +727,10 @@ $(function () {
   
   
   
-  
+  $('#flip').click(function(){
+    sf *= -1;
+    console.log(sf)
+  })
   
   
   $("#ex0").slider();
@@ -779,6 +797,7 @@ $(function () {
   });
 
   $("#cropImageBtn").on("click", function (ev) {
+    // waiting_start()
     $uploadCrop
       .croppie("result", {
         type: "base64",
@@ -810,6 +829,10 @@ $(function () {
           original_choose = selected_class;
           
           enableUI();
+          $('input[type="file"]').val(null);
+          console.log('modal end')
+          // waiting_end()
+          // $('.waiting-modal').modal('hide');
           // window.location.href = window.location.href;
         });
       });
@@ -925,6 +948,9 @@ $(function () {
     $(`#sefa${i}`).slider()
     $(`#sefa${i}`).change(()=>updateDirectManipulate())
   } 
+
+  
+
   // $( document ).ajaxStart(function() {
     
   //   // $('html').css("cursor", "wait"); 
@@ -939,18 +965,22 @@ $(function () {
   // });
   let output = $('#temp-save-box')
   $('.temp-save').click(function() {
-    let imageClone = $('.random-sample.selected').clone().attr('class', 'temp-save-img');
+    let imageClone = $('.random-sample.selected').clone().attr('class', 'temp-save-img temp-save-img-generated');
     output.append(imageClone);
     
   });
 
   $('.temp-save-noise').click(function() {
-    let imageClone = $('.random-sample-noise.selected').clone().attr('class', 'temp-save-img');
+    let imageClone = $('.random-sample-noise.selected').clone().attr('class', 'temp-save-img temp-save-img-generated');
     output.append(imageClone);
     
   });
 
-  
+  $('.temp-save-reference').click(function() {
+    let imageClone = $('.thumbnail.selected .image_picker_image').clone().attr('class', 'temp-save-img temp-save-img-reference');
+    output.append(imageClone);
+    
+  });  
 
   function takeshot() {
     let div = document.getElementById('detail-comment'); // $('#detail-comment');
@@ -974,9 +1004,12 @@ $(function () {
   })
   
   $(document).on('click', '.temp-save-img',function(){
-    
-    // $('.temp-save-img.selected').removeClass('selected');
-    $(this).addClass('selected');
+    if($(this).hasClass('selected')){
+      $(this).removeClass('selected')
+    }
+    else{
+      $(this).addClass('selected');
+    }
   });
 
   $('#temp-save-img-delete').on('click', function() {

@@ -129,14 +129,17 @@ def hex2val(hex):
 
 
 @torch.no_grad()
-def my_morphed_images(original, references, masks, shift_values, interpolation=8, save_dir=None):
+def my_morphed_images(original, references, masks, shift_values, interpolation=8, save_dir=None, flip=1):
     original_path = original.split('?')[0] if 'demo' in original else base_path + original
     original_image = Image.open(original_path)
     reference_images = []
 
     for ref in references:
         ref_path = ref.split('?')[0] if 'demo' in ref else base_path + ref
-        reference_image =  TF.to_tensor(Image.open(ref_path).resize((canvas_size, canvas_size)))
+        ref_img = Image.open(ref_path)
+        if flip == -1:
+            ref_img = ref_img.transpose(Image.FLIP_LEFT_RIGHT)
+        reference_image =  TF.to_tensor(ref_img.resize((canvas_size, canvas_size)))
         if reference_image.ndim == 2 :
             reference_image = reference_image.unsqueeze(0)
         if reference_image.shape[0] == 1 :
@@ -213,7 +216,7 @@ def generate_images(
     add_vector=None
     ):
      
-    print(outdir)
+    
     os.makedirs(outdir, exist_ok=True)
     
 
@@ -310,9 +313,10 @@ def post():
             
             original = request.json["original"][0]
             references = request.json["references"]
-            
+            flip = request.json['flip']
             print(original)
             print(references)
+            print('flip', flip)
 
             colors = [hex2val(hex) for hex in request.json["colors"]]
             data_reference_bin = []
@@ -343,6 +347,7 @@ def post():
                 shift_values,
                 interpolation=args['interpolation_step'],
                 save_dir=save_dir,
+                flip=flip
             )
             paths = []
 

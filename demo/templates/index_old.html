@@ -1,0 +1,183 @@
+<!-- 
+   Refer to https://github.com/quolc/neural-collage/blob/master/templates/demo_feature_blending/index.html
+   -->
+   {% extends "layout.html" %} {% block content %}
+   <div class="main container-fluid">
+      <div class="row justify-content-md-center main-sub">
+        
+         <div class="col-md-9 shadow-sm " id="main-column-1">
+            <div class="row" id="main-ui">
+               <div class='card col-md-12 align-self-center'>
+                  
+                  <div class='card-body'>
+                     <div class='row justify-content-md-center align-items-center d-flex h-90'>
+                        <div class="col-md-3 align-self-center">
+                           
+                           <div id="p5-original-wrapper" class="p5-wrapper">
+                              <div id="p5-original" class="p5"></div>
+                           </div>
+                     
+                        </div>
+                        <div class="col-md-3 align-self-center ">
+                           
+                           <div class="card editor">
+                              <div class="card-body">
+                                 <div id="p5-reference-wrapper" class="p5-wrapper">
+                                    <div id="p5-reference" class="p5"></div>
+                                 </div>
+                              </div>
+                           </div>
+                           
+                        </div>
+                        <div class="col-md-1 align-self-center" id="main-ui-middle">
+                           <button
+                              type="submit"
+                              class="form-control btn"
+                              id="main-ui-submit"
+                              disabled
+                              >
+                           ➞
+                           </button>
+                        </div>
+                        <div class="col-md-3 align-self-center ">
+                           
+                           <div class="card editor">
+                              <div class="card-body">
+                                 <div id="p5-right-wrapper" class="p5-wrapper">
+                                    <div id="p5-right" class="p5"></div>
+                                 </div>
+                              </div>
+                              <div id="result-control" class="row">
+                                 <input
+                                    id="ex1"
+                                    data-slider-id="ex1Slider"
+                                    type="text"
+                                    data-slider-min="0"
+                                    data-slider-max="15"
+                                    data-slider-step="1"
+                                    data-slider-value="15"
+                                    />
+                              </div>
+                              
+                           </div>
+                        </div>   
+                     </div>
+                     <div class='row justify-content-md-center align-items-center d-flex h-10'>
+                        
+                        <div class = 'col-md-2 justify-content-md-center'>
+                           <button class="styled-button" id="add-mask">New Layer</button>
+                           <button class="styled-button" id="sketch-clear">모든 Layer 삭제</button>
+                         </div>
+                        <div class='col-md-8' id="palette-body">
+                           <div
+                              class="palette-item selected"
+                              id="palette-eraser"
+                              data-class="-1"
+                              style="background-color: #000; border : dashed #000"
+                              >
+                              <img src="/demo/static/components/img/eraser.png" />
+                           </div>
+                        
+                        </div>
+                     </div>
+                  </div>
+            
+               </div>
+            </div>
+            <div class="row" id="main-ui-under"></div>
+         </div>
+         <div class='col-md-3 shadow-sm' id='main-column-2'>
+            <div class='card random-generate'>
+               <div class='card-header'><b>Step</b> 수정가능한 이미지나 일반 이미지를 선택하실 수 있습니다.</div>
+            </div>
+            <div id="class-list">
+              <button type="submit" class="styled-button" id="class-picker-submit-original">Original</button>
+              <button type="submit" class="styled-button" id="class-picker-submit-reference">Reference</button>
+              
+              <label class="styled-button" for="input-file">
+               커스텀 이미지 추가
+             </label>
+             <input type="file" id="input-file" class="item-img file center-block"
+             name="file_photo" style="display:none" />
+
+                        
+              <div class='row'>
+              <select
+                  class="image-picker show-html form-control"
+                  id="class-picker"
+                  ></select>
+               </div>
+               <div class='row'>
+               <select
+               class="image-picker show-html form-control"
+               id="class-picker"
+               ></select>
+               </div>
+              
+            
+              <label class="cabinet center-block">
+                  <figure>
+                    <div class="thumbnail">
+                        <img
+                          src="/demo/static/components/img/face-detection.png"
+                          class="img-responsive"
+                          id="item-img-output"
+                          />
+                    </div>
+                    <input
+                        type="file"
+                        class="item-img file center-block"
+                        name="file_photo"
+                        />
+                  </figure>
+              </label>
+            
+            </div>
+         </div>
+         <div
+            class="modal fade bd-example-modal-lg"
+            id="cropImagePop"
+            tabindex="-1"
+            role="dialog"
+            aria-labelledby="myModalLabel"
+            aria-hidden="true"
+            >
+            <div class="modal-dialog  modal-lg">
+               <div class="modal-content ">
+                  <div class="modal-header">
+                     <h4 class="modal-title" id="myModalLabel">Edit Photo</h4>
+                     <button
+                        type="button"
+                        class="close"
+                        data-dismiss="modal"
+                        aria-label="Close"
+                        >
+                     <span aria-hidden="true">&times;</span>
+                     </button>
+                  </div>
+                  <div class="modal-body">
+                     <select id="upload-select" class="custom-select"></select>
+                     <div id="upload-demo" class="text-center"></div>
+                  </div>
+                  <div class="modal-footer">
+                     <button
+                        type="button"
+                        class="btn btn-secondary"
+                        data-dismiss="modal"
+                        >
+                     Close
+                     </button>
+                     <button
+                        type="button"
+                        id="cropImageBtn"
+                        class="btn btn-primary"
+                        >
+                     Crop
+                     </button>
+                  </div>
+               </div>
+            </div>
+         </div>
+      </div>
+   </div>
+   {% endblock %}
