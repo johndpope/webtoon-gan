@@ -137,4 +137,5 @@ dmypy.json
 *.pt
 
 random_generated
+sketch
 seed_info.json
