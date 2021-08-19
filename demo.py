@@ -97,6 +97,7 @@ def index():
         canvas_size=canvas_size,
         base_path=base_path,
         image_paths=list(os.walk(base_path)),
+        webtoon_id=webtoon_id
     )
 
 @app.route("/single")
@@ -426,11 +427,14 @@ if __name__ == "__main__":
     with open(args["seed_info"], 'r') as seed_info:
         seed_list = json.load(seed_info)
 
+    with open(args["webtoon_id"], 'r') as webtoon_id:
+        webtoon_id = json.load(webtoon_id)
+
     direct_manipulation_vectors  = np.vstack(direct_manipulation_vectors)
     
     sefa_vector = torch.load(args['sefa_vector'])['eigvec']
     
-
+    
     app.run(host="127.0.0.1", port=7000,
     # debug=True,
      debug=False, 

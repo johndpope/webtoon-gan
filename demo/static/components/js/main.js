@@ -633,9 +633,14 @@ $(function () {
     let dir_name = dir_path.split("/").reverse()[0];
 
     if (dir_name === "") dir_name = "etc";
-    $("#class-picker").append(`<optgroup id="${dir_name}" label=${dir_name}>`);
+    if (dir_name=='etc'){
+      continue;
+    }
+
+    
+    $("#class-picker").append(`<optgroup id="${dir_name}" label="${String(webtoon_id[dir_name])}">`);
     $("#upload-select").append(
-      `<option value="${dir_name}">${dir_name}</option>>`
+      `<option value="${dir_name}">${webtoon_id[dir_name]}</option>>`
     );
 
     for (var i = 0; i < files.length; i++) {

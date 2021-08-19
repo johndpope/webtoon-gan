@@ -11,5 +11,6 @@
     "direct_manipulation_vector": [
         "./pose.pt"
     ],
+    "webtoon_id": "id.json",
     "outdir": "./demo/static/components/img/random_generated"
 }
