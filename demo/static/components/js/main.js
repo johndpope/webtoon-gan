@@ -543,7 +543,7 @@ function waiting_end(){
 
 function updateResult() {
   disableUI();
-  waiting_start();
+  // waiting_start();
   var canvas_reference = $("#p5-reference canvas").slice(1);
 
   var data_reference = [];
@@ -583,7 +583,7 @@ function updateResult() {
     $("#ex1").attr("data-slider-value", urls.length - 1);
     $("#ex1").slider("refresh");
     enableUI();
-    waiting_end();
+    // waiting_end();
   });
 }
 
@@ -828,10 +828,10 @@ $(function () {
         }).done(function (data, textStatus, jqXHR) {
           let url = data["result"];
           console.log(url)
-          selected_class = url;
-          p5_input_original.updateImage(selected_class);
-          original_image = selected_class;
-          original_choose = selected_class;
+          selected_class2 = url;
+          p5_input_original.updateImage(selected_class2);
+          original_image = selected_class2;
+          original_choose = selected_class2;
           
           enableUI();
           $('input[type="file"]').val(null);
@@ -881,13 +881,17 @@ $(function () {
   });
 
   $(document).on('dblclick', '.random-sample',function(){
-    
+    for(let i = 0 ; i < 5 ; i++){
+      $(`#sefa${i}`).slider("refresh");
+    }
     updateOriginRandomGenerateNoise()
     
   });
 
   $(document).on('dblclick', '.random-sample-noise',function(){
-
+    for(let i = 0 ; i < 5 ; i++){
+      $(`#sefa${i}`).slider("refresh");
+    }
     p5_input_reference.clear_canvas();
     $(".palette-item-class").remove();
     pose_lr = 0;
@@ -901,6 +905,7 @@ $(function () {
 
     p5_input_reference.updateImage(selected_class);
     updateDirectManipulateExample()
+    
   });
 
   $(document).on('click', '.random-sample-noise',function(){
@@ -1023,7 +1028,9 @@ $(function () {
   });
 
   $(document).on('dblclick', '.temp-save-img',function(){
-
+    for(let i = 0 ; i < 5 ; i++){
+      $(`#sefa${i}`).slider("refresh");
+    }
     p5_input_reference.clear_canvas();
     $(".palette-item-class").remove();
     pose_lr = 0;
